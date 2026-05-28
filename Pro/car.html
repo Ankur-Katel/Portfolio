@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Business Website Demo — Premium Auto Website by Ankur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --black: #030305;
+    --chrome: #b8bec9;
+    --blue: #00aaff;
+    --blue-dim: rgba(0,170,255,0.15);
+    --blue-glow: rgba(0,170,255,0.5);
+    --white: #e8eaf0;
+    --silver: #8a94a6;
+    --gold: #c9a84c;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow Condensed', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: auto; }
+  body { background: var(--black); color: var(--white); font-family: var(--font-body); overflow-x: hidden; cursor: none; }
+
+  /* CURSOR */
+  #cursor { position: fixed; width: 12px; height: 12px; background: var(--blue); border-radius: 50%; pointer-events: none; z-index: 9999; mix-blend-mode: screen; transform: translate(-50%,-50%); }
+  #cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid rgba(0,170,255,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .3s,height .3s; }
+  body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 60px; height: 60px; }
+
+  /* LOADER */
+  #loader { position: fixed; inset: 0; background: var(--black); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; }
+  #loader-logo { font-family: var(--font-display); font-size: clamp(3rem,8vw,6rem); letter-spacing: 0.4em; color: transparent; -webkit-text-stroke: 1px var(--chrome); opacity: 0; }
+  #loader-bar-wrap { width: 260px; height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+  #loader-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: linear-gradient(90deg,transparent,var(--blue),var(--chrome)); box-shadow: 0 0 20px var(--blue-glow); }
+  #loader-pct { font-family: var(--font-mono); font-size: .75rem; color: var(--silver); letter-spacing: .2em; }
+
+  /* SOUND BTN */
+  #sound-btn { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; transition: border-color .3s,box-shadow .3s; }
+  #sound-btn:hover { border-color: var(--blue); box-shadow: 0 0 20px var(--blue-glow); }
+  #sound-btn svg { width: 18px; height: 18px; fill: var(--white); }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; padding: 1.5rem 3rem; display: flex; align-items: center; justify-content: space-between; }
+  nav::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom,rgba(3,3,5,0.9),transparent); pointer-events: none; }
+  .nav-logo { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: .3em; color: var(--white); text-decoration: none; position: relative; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; position: relative; }
+  .nav-links a { font-family: var(--font-body); font-size: .85rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--silver); text-decoration: none; transition: color .3s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 100%; height: 1px; background: var(--blue); transition: right .4s cubic-bezier(.25,1,.5,1); box-shadow: 0 0 8px var(--blue); }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { right: 0; }
+
+  /* THREE.JS */
+  #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  #hero { height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+  #hero-car { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 60%,rgba(0,100,200,0.12) 0%,transparent 70%),radial-gradient(ellipse 100% 80% at 50% 100%,rgba(0,30,80,0.8) 0%,transparent 60%),url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1800&q=80&fit=crop') center/cover no-repeat; transform: scale(1.1); will-change: transform; }
+  #hero-car::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom,rgba(3,3,5,0.3) 0%,rgba(3,3,5,0) 30%,rgba(3,3,5,0) 60%,rgba(3,3,5,0.95) 100%); }
+  .hero-content { text-align: center; position: relative; z-index: 2; padding: 0 2rem; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .5em; color: var(--blue); text-transform: uppercase; margin-bottom: 1.5rem; opacity: 0; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(5rem,14vw,13rem); line-height: .9; letter-spacing: .05em; color: var(--white); text-shadow: 0 0 60px rgba(0,120,255,0.3); overflow: hidden; }
+  .hero-title-line { display: block; transform: translateY(120%); }
+  .hero-subtitle { font-family: var(--font-body); font-size: clamp(.9rem,2vw,1.1rem); font-weight: 300; letter-spacing: .5em; text-transform: uppercase; color: var(--chrome); margin-top: 1.5rem; opacity: 0; }
+  .hero-cta-group { margin-top: 3rem; display: flex; gap: 1.5rem; justify-content: center; align-items: center; opacity: 0; }
+
+  /* BUTTONS */
+  .btn-primary { padding: 1rem 2.5rem; background: var(--blue); color: #000; font-family: var(--font-body); font-size: .85rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; border: none; cursor: none; position: relative; overflow: hidden; transition: box-shadow .3s,transform .3s; clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px)); }
+  .btn-primary:hover { box-shadow: 0 0 40px var(--blue-glow),0 0 80px rgba(0,100,200,0.3); transform: translateY(-2px); }
+  .btn-secondary { padding: 1rem 2.5rem; background: transparent; color: var(--white); font-family: var(--font-body); font-size: .85rem; font-weight: 500; letter-spacing: .3em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); cursor: none; transition: border-color .3s,box-shadow .3s,transform .3s; clip-path: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px)); }
+  .btn-secondary:hover { border-color: var(--blue); box-shadow: 0 0 20px var(--blue-dim),inset 0 0 20px var(--blue-dim); transform: translateY(-2px); }
+
+  /* SPEED LINES */
+  .speed-lines { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .speed-line { position: absolute; top: 50%; height: 1px; background: linear-gradient(90deg,transparent,rgba(0,170,255,0.3),transparent); animation: speedLine 3s ease-in-out infinite; }
+  @keyframes speedLine { 0% { left: -100%; width: 0; opacity: 0; } 20% { opacity: 1; } 100% { left: 100%; width: 60%; opacity: 0; } }
+
+  /* SCROLL IND */
+  .scroll-ind { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: .5rem; opacity: 0; z-index: 2; }
+  .scroll-ind span { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .3em; color: var(--silver); text-transform: uppercase; }
+  .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom,var(--blue),transparent); animation: scrollPulse 2s ease-in-out infinite; box-shadow: 0 0 8px var(--blue); }
+  @keyframes scrollPulse { 0%,100%{opacity:.3}50%{opacity:1} }
+
+  /* MOUSE GLOW */
+  #mouse-glow { position: fixed; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle,rgba(0,120,255,0.08) 0%,transparent 70%); pointer-events: none; z-index: 1; transform: translate(-50%,-50%); }
+
+  /* STATS STRIP */
+  #stats-strip { padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); background: linear-gradient(90deg,rgba(0,50,120,0.05),rgba(0,20,60,0.15),rgba(0,50,120,0.05)); overflow: hidden; }
+  .stats-inner { display: flex; align-items: stretch; justify-content: center; max-width: 1200px; margin: 0 auto; }
+  .stat-item { flex: 1; text-align: center; padding: 0 2rem; position: relative; }
+  .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 10%; bottom: 10%; width: 1px; background: linear-gradient(to bottom,transparent,rgba(0,170,255,0.3),transparent); }
+  .stat-num { font-family: var(--font-display); font-size: clamp(3rem,6vw,5rem); color: var(--white); line-height: 1; display: flex; align-items: flex-start; justify-content: center; gap: .1em; }
+  .stat-unit { font-size: .4em; color: var(--blue); align-self: flex-start; margin-top: .3em; }
+  .stat-label { font-family: var(--font-mono); font-size: .65rem; letter-spacing: .3em; color: var(--silver); text-transform: uppercase; margin-top: .5rem; }
+
+  /* ══════════════════════════════════════════════
+     UPGRADED SECTION HEADINGS — CINEMATIC PREMIUM
+  ══════════════════════════════════════════════ */
+  .section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: .65rem;
+    letter-spacing: .6em;
+    color: var(--blue);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+    opacity: 0.85;
+  }
+  .section-eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue));
+    box-shadow: 0 0 8px var(--blue);
+    flex-shrink: 0;
+  }
+  .section-eyebrow::after {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--blue);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--blue), 0 0 20px var(--blue);
+    animation: blink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  /* Cinematic section title */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem,7vw,6rem);
+    line-height: .9;
+    letter-spacing: .03em;
+    will-change: transform,opacity;
+    background: linear-gradient(160deg, #ffffff 0%, #b8bec9 40%, #00aaff 70%, #e8eaf0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0,120,255,0.25));
+    position: relative;
+  }
+  /* Ghost outline behind big headings */
+  .section-title-ghost {
+    font-family: var(--font-display);
+    font-size: clamp(5rem,12vw,10rem);
+    line-height: .85;
+    letter-spacing: .08em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(0,170,255,0.08);
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+  .heading-wrap { position: relative; display: inline-block; }
+
+  /* MANIFESTO */
+  #manifesto { padding: 10rem 3rem; max-width: 1400px; margin: 0 auto; }
+  .manifesto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .manifesto-text p { font-size: 1.1rem; font-weight: 300; line-height: 1.8; color: rgba(232,234,240,0.7); margin-bottom: 1.5rem; letter-spacing: .02em; }
+  .manifesto-visual { position: relative; height: 500px; }
+  .manifesto-img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.3) contrast(1.1); }
+  .manifesto-img-wrap { position: absolute; inset: 0; overflow: hidden; clip-path: polygon(0 0,100% 0,100% 100%,20px 100%,0 calc(100% - 20px)); }
+  .manifesto-img-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,transparent 60%,rgba(0,100,255,0.2)); mix-blend-mode: screen; }
+  .manifesto-corner { position: absolute; width: 30px; height: 30px; border-color: var(--blue); border-style: solid; box-shadow: 0 0 15px var(--blue-glow); }
+  .mc-tl { top: -8px; left: -8px; border-width: 2px 0 0 2px; }
+  .mc-br { bottom: -8px; right: -8px; border-width: 0 2px 2px 0; }
+
+  /* CARS SHOWCASE */
+  #showcase { padding: 6rem 0; overflow: hidden; }
+  .showcase-header { padding: 0 3rem; margin-bottom: 4rem; }
+  .car-card { position: relative; height: 85vh; min-height: 600px; overflow: hidden; cursor: none; }
+  .car-card-bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform .8s cubic-bezier(.25,1,.5,1),filter .5s; transform: scale(1.05); will-change: transform; }
+  .car-card:hover .car-card-bg { transform: scale(1); filter: brightness(.7); }
+  .car-card-overlay { position: absolute; inset: 0; background: linear-gradient(to right,rgba(3,3,5,0.9) 0%,rgba(3,3,5,0.3) 50%,rgba(3,3,5,0.1) 100%); }
+  .car-card-content { position: absolute; inset: 0; padding: 4rem; display: flex; flex-direction: column; justify-content: flex-end; }
+  .car-model { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .4em; color: var(--blue); text-transform: uppercase; margin-bottom: .5rem; }
+  .car-name { font-family: var(--font-display); font-size: clamp(3.5rem,8vw,7rem); line-height: .9; color: var(--white); text-shadow: 0 0 40px rgba(0,100,255,0.2); margin-bottom: 1.5rem; }
+  .car-specs { display: flex; gap: 2.5rem; margin-bottom: 2rem; }
+  .car-spec { display: flex; flex-direction: column; gap: .2rem; }
+  .car-spec-val { font-family: var(--font-display); font-size: 1.8rem; color: var(--white); line-height: 1; }
+  .car-spec-key { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .3em; color: var(--silver); text-transform: uppercase; }
+  .car-tag { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem 1rem; border: 1px solid rgba(0,170,255,0.3); background: rgba(0,100,255,0.08); backdrop-filter: blur(8px); font-family: var(--font-mono); font-size: .65rem; letter-spacing: .2em; color: var(--blue); margin-bottom: 1.5rem; width: fit-content; }
+  .car-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 8px var(--blue); animation: blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
+
+  /* ═══════════════════════════════════════════════════════
+     FLYING CAR SCROLL SECTION
+  ═══════════════════════════════════════════════════════ */
+  #flying-car-section {
+    height: 200vh;
+    position: relative;
+  }
+  #flying-car-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #flying-car-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 50%, rgba(0,50,150,0.15) 0%, transparent 70%),
+      linear-gradient(to bottom, rgba(3,3,5,0.95) 0%, rgba(3,3,5,0.5) 40%, rgba(3,3,5,0.5) 60%, rgba(3,3,5,0.95) 100%);
+    z-index: 0;
+  }
+  /* Atmospheric grid lines */
+  #flying-car-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    perspective: 400px;
+  }
+  #flying-car-grid svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+  }
+  .flying-car-wrap {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3rem;
+  }
+  #flying-car-img {
+    width: 100%;
+    max-width: 900px;
+    filter:
+      drop-shadow(0 0 60px rgba(0,170,255,0.4))
+      drop-shadow(0 30px 60px rgba(0,0,0,0.8))
+      brightness(1.1)
+      contrast(1.05);
+    will-change: transform, filter;
+    transform: translateX(120vw) translateY(30px) rotate(3deg);
+  }
+  /* Engine glow trail */
+  #engine-trail {
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 3px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+  }
+  #engine-trail-inner {
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,150,255,0.8), rgba(0,200,255,1), rgba(255,255,255,0.9));
+    box-shadow: 0 0 20px rgba(0,200,255,1), 0 0 40px rgba(0,150,255,0.6);
+    width: 0%;
+  }
+  .flying-text-block {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .flying-text-left {
+    left: 3rem;
+    bottom: 25%;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .flying-text-right {
+    right: 3rem;
+    top: 25%;
+    text-align: right;
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  .flying-caption {
+    font-family: var(--font-mono);
+    font-size: .65rem;
+    letter-spacing: .5em;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  .flying-big {
+    font-family: var(--font-display);
+    font-size: clamp(2rem,5vw,4rem);
+    background: linear-gradient(160deg, #ffffff 0%, #00aaff 60%, #b8bec9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: .95;
+    filter: drop-shadow(0 0 20px rgba(0,120,255,0.4));
+  }
+  .flying-sub {
+    font-family: var(--font-body);
+    font-size: .9rem;
+    color: var(--silver);
+    letter-spacing: .15em;
+    font-weight: 300;
+    margin-top: .5rem;
+  }
+  /* Ambient particle streaks */
+  .fcar-streak {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(0,170,255,0.15), transparent);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     REDESIGNED TECH / H-SCROLL SECTION
+  ═══════════════════════════════════════════════════════ */
+  #h-scroll { height: 300vh; position: relative; }
+  #h-scroll-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; }
+  #h-scroll-track { display: flex; gap: 2.5rem; padding: 0 3rem; will-change: transform; }
+
+  /* Futuristic floating glass card */
+  .h-card {
+    flex: 0 0 400px;
+    height: 580px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(6,8,18,0.6);
+    backdrop-filter: blur(24px) saturate(1.8);
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: none;
+    transform-style: preserve-3d;
+    transition: transform .5s cubic-bezier(.25,1,.5,1), box-shadow .5s;
+    border-radius: 2px;
+  }
+  /* Animated corner brackets */
+  .h-card::before, .h-card::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    z-index: 10;
+    transition: width .4s, height .4s, opacity .4s;
+    opacity: .4;
+  }
+  .h-card::before {
+    top: 0; left: 0;
+    border-top: 1px solid var(--blue);
+    border-left: 1px solid var(--blue);
+    box-shadow: -2px -2px 12px rgba(0,170,255,0.3);
+  }
+  .h-card::after {
+    bottom: 0; right: 0;
+    border-bottom: 1px solid var(--blue);
+    border-right: 1px solid var(--blue);
+    box-shadow: 2px 2px 12px rgba(0,170,255,0.3);
+  }
+  .h-card:hover::before, .h-card:hover::after {
+    width: 40px; height: 40px; opacity: 1;
+  }
+  .h-card:hover {
+    box-shadow:
+      0 0 0 1px rgba(0,170,255,0.2),
+      0 30px 80px rgba(0,0,0,0.8),
+      0 0 60px rgba(0,80,200,0.15),
+      inset 0 0 60px rgba(0,80,200,0.04);
+    transform: translateY(-12px) rotateX(2deg);
+  }
+  /* Top accent line animated */
+  .h-card-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--blue) 50%, transparent 100%);
+    box-shadow: 0 0 20px var(--blue);
+    opacity: 0;
+    transition: opacity .4s;
+    z-index: 10;
+  }
+  .h-card:hover .h-card-accent { opacity: 1; }
+  /* Animated gradient border scan */
+  .h-card-scan {
+    position: absolute;
+    left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(0,140,255,0.04), transparent);
+    pointer-events: none;
+    z-index: 9;
+    transform: translateY(-80px);
+    transition: none;
+    animation: cardScan 4s ease-in-out infinite;
+  }
+  @keyframes cardScan {
+    0%,100% { transform: translateY(-80px); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(calc(580px + 80px)); opacity: 0; }
+  }
+  /* Glowing side edge */
+  .h-card-glow-edge {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(0,170,255,0.4), transparent);
+    opacity: 0;
+    transition: opacity .5s;
+  }
+  .h-card:hover .h-card-glow-edge { opacity: 1; }
+
+  .h-card-img-wrap {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    position: relative;
+  }
+  .h-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(.15) brightness(.9);
+    transition: filter .6s, transform .8s cubic-bezier(.25,1,.5,1);
+    transform: scale(1.06);
+  }
+  .h-card:hover .h-card-img { filter: grayscale(0) brightness(1.05); transform: scale(1); }
+  /* Image overlay */
+  .h-card-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(6,8,18,0.9));
+  }
+  /* Floating tag on image */
+  .h-card-float-tag {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    padding: .25rem .7rem;
+    border: 1px solid rgba(0,170,255,0.3);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    font-family: var(--font-mono);
+    font-size: .55rem;
+    letter-spacing: .2em;
+    color: var(--blue);
+    text-transform: uppercase;
+    z-index: 5;
+  }
+
+  .h-card-body { padding: 1.5rem 1.8rem 2rem; position: relative; }
+  .h-card-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .45em; color: var(--blue); text-transform: uppercase; margin-bottom: .4rem; display: flex; align-items: center; gap: .6rem; }
+  .h-card-label::before { content: ''; width: 20px; height: 1px; background: var(--blue); box-shadow: 0 0 6px var(--blue); flex-shrink: 0; }
+  .h-card-title { font-family: var(--font-display); font-size: 2rem; background: linear-gradient(135deg, #e8eaf0, #b8bec9 50%, #00aaff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: .95; margin-bottom: .8rem; filter: drop-shadow(0 0 15px rgba(0,100,255,0.2)); }
+  .h-card-desc { font-size: .82rem; font-weight: 300; color: rgba(138,148,166,0.85); line-height: 1.65; margin-bottom: 1.4rem; letter-spacing: .02em; }
+  /* Progress bars */
+  .h-card-metrics { display: flex; flex-direction: column; gap: .7rem; }
+  .h-card-metric { display: flex; flex-direction: column; gap: .25rem; }
+  .h-card-metric-head { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: .55rem; letter-spacing: .2em; color: var(--silver); text-transform: uppercase; }
+  .h-card-metric-head span:last-child { color: var(--blue); }
+  .h-card-bar-track { height: 2px; background: rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+  .h-card-bar-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(0,100,200,0.6), var(--blue), rgba(180,220,255,0.9));
+    box-shadow: 0 0 10px var(--blue);
+    width: 0%;
+    transition: width 1.2s cubic-bezier(.25,1,.5,1) .2s;
+  }
+  .h-card:hover .h-card-bar-fill { width: var(--pct, 80%); }
+
+  /* ═══════════════════════════════════════════════════════
+     FLOATING SCI-FI BACKGROUND for H-SCROLL
+  ═══════════════════════════════════════════════════════ */
+  #h-scroll-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .hbg-car {
+    position: absolute;
+    opacity: 0.04;
+    filter: blur(2px) brightness(2);
+    pointer-events: none;
+    animation: floatCar 12s ease-in-out infinite;
+  }
+  @keyframes floatCar {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.02); }
+  }
+
+  /* TITLE CARD in h-scroll */
+  .h-title-card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 4rem 0 0;
+    min-width: 380px;
+    position: relative;
+  }
+  /* Live text display */
+  .h-live-display {
+    margin-top: 2rem;
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    color: rgba(0,170,255,0.5);
+    letter-spacing: .2em;
+    line-height: 1.8;
+    border-left: 1px solid rgba(0,170,255,0.2);
+    padding-left: 1rem;
+  }
+  .h-live-line { overflow: hidden; white-space: nowrap; }
+  .h-live-cursor { display: inline-block; width: 6px; height: .8em; background: var(--blue); vertical-align: middle; animation: cursorBlink .8s step-end infinite; }
+  @keyframes cursorBlink { 0%,100%{opacity:1}50%{opacity:0} }
+
+  /* GALLERY */
+  #gallery { padding: 8rem 0; overflow: hidden; }
+  .gallery-header { padding: 0 3rem; margin-bottom: 3rem; }
+  .swiper { overflow: visible; padding: 2rem 3rem; }
+  .swiper-slide { width: 480px; height: 340px; position: relative; overflow: hidden; cursor: none; }
+  .swiper-slide img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.25,1,.5,1); }
+  .swiper-slide:hover img { transform: scale(1.08); }
+  .swiper-slide::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom,transparent 50%,rgba(3,3,5,.7)); transition: opacity .4s; }
+  .swiper-slide:hover::after { opacity: .5; }
+  .slide-label { position: absolute; bottom: 1.5rem; left: 1.5rem; z-index: 2; font-family: var(--font-display); font-size: 1.5rem; color: var(--white); opacity: 0; transform: translateY(10px); transition: opacity .4s,transform .4s; }
+  .swiper-slide:hover .slide-label { opacity: 1; transform: translateY(0); }
+
+  /* ═══════════════════════════════════════════════════════
+     UPGRADED EXPERIENCE / WHY APEX SECTION
+  ═══════════════════════════════════════════════════════ */
+  #experience {
+    padding: 10rem 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+  /* Premium section heading treatment */
+  .exp-heading-wrap {
+    position: relative;
+    margin-bottom: 5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3rem;
+  }
+  .exp-heading-left { flex: 1; }
+  .exp-heading-right {
+    flex: 0 0 auto;
+    max-width: 340px;
+    padding-bottom: .5rem;
+  }
+  .exp-heading-right p {
+    font-size: .95rem;
+    font-weight: 300;
+    color: rgba(138,148,166,0.8);
+    line-height: 1.7;
+    letter-spacing: .02em;
+    border-left: 1px solid rgba(0,170,255,0.2);
+    padding-left: 1.5rem;
+  }
+  .exp-section-num {
+    font-family: var(--font-display);
+    font-size: clamp(6rem,14vw,12rem);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(0,170,255,0.06);
+    line-height: 1;
+    letter-spacing: .05em;
+    position: absolute;
+    top: -2rem;
+    left: -1rem;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+  }
+  /* cinematic title with metallic gradient */
+  .exp-main-title {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem,8vw,7rem);
+    line-height: .88;
+    letter-spacing: .02em;
+    position: relative;
+    z-index: 1;
+  }
+  .exp-title-line-1 {
+    display: block;
+    background: linear-gradient(100deg, #e8eaf0 0%, #ffffff 30%, #b8bec9 60%, #8a94a6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .exp-title-line-2 {
+    display: block;
+    background: linear-gradient(100deg, #00aaff 0%, #60cfff 40%, #ffffff 70%, #b8bec9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0,150,255,0.35));
+  }
+  /* Decorative divider */
+  .exp-divider {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 1.5rem 0 0;
+  }
+  .exp-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--blue), transparent);
+    max-width: 200px;
+    box-shadow: 0 0 6px var(--blue);
+  }
+  .exp-divider-text {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    letter-spacing: .4em;
+    color: rgba(0,170,255,0.6);
+    text-transform: uppercase;
+  }
+  /* UPGRADED CARDS GRID */
+  .exp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .exp-card {
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(6,8,18,0.7);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+    transition: border-color .4s, transform .5s cubic-bezier(.25,1,.5,1), box-shadow .4s;
+    cursor: none;
+    border-radius: 1px;
+  }
+  .exp-card:hover {
+    border-color: rgba(0,170,255,0.25);
+    transform: translateY(-8px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 40px rgba(0,80,200,0.12);
+  }
+  /* Gradient top border on hover */
+  .exp-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    box-shadow: 0 0 20px var(--blue);
+    opacity: 0;
+    transition: opacity .4s;
+    z-index: 5;
+  }
+  .exp-card:hover::before { opacity: 1; }
+  /* Inner glow */
+  .exp-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(0,100,255,0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity .5s;
+    pointer-events: none;
+  }
+  .exp-card:hover::after { opacity: 1; }
+  /* Card inner layout */
+  .exp-card-inner { padding: 2.2rem; }
+  /* Number badge */
+  .exp-badge {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,170,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .exp-badge::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: rgba(0,100,200,0.08);
+  }
+  .exp-badge-num {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    color: var(--blue);
+    letter-spacing: .1em;
+    position: relative;
+    z-index: 1;
+  }
+  .exp-icon {
+    width: 44px; height: 44px;
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+  .exp-icon svg { width: 100%; height: 100%; stroke: var(--blue); fill: none; stroke-width: 1.2; filter: drop-shadow(0 0 8px rgba(0,170,255,0.4)); }
+  .exp-card-title {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    background: linear-gradient(135deg, #ffffff 0%, #b8bec9 60%, #00aaff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: .7rem;
+    line-height: 1;
+    letter-spacing: .02em;
+  }
+  .exp-card-text { font-size: .85rem; font-weight: 300; color: rgba(138,148,166,0.8); line-height: 1.7; letter-spacing: .01em; }
+  /* Bottom metric bar */
+  .exp-card-footer {
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding: .8rem 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .exp-card-stat {
+    font-family: var(--font-mono);
+    font-size: .55rem;
+    color: rgba(138,148,166,0.5);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+  .exp-card-stat span {
+    color: var(--blue);
+    font-size: .65rem;
+    display: block;
+    margin-top: .1rem;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     REAL-TIME ANIMATED TEXT STRIP
+  ═══════════════════════════════════════════════════════ */
+  #realtime-text {
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .rt-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,40,120,0.05), rgba(0,10,40,0.2), rgba(0,40,120,0.05));
+  }
+  .rt-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    position: relative;
+    z-index: 2;
+  }
+  .rt-eyebrow {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    letter-spacing: .5em;
+    color: rgba(0,170,255,0.5);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .rt-eyebrow::before { content: ''; width: 30px; height: 1px; background: rgba(0,170,255,0.4); }
+  /* Main typewriter display */
+  .rt-display {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem,6vw,5rem);
+    line-height: 1;
+    letter-spacing: .03em;
+    min-height: 1.1em;
+    position: relative;
+  }
+  .rt-display-word {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffffff 0%, #00aaff 50%, #b8bec9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(0,100,255,0.3));
+    transition: opacity .2s, transform .2s;
+  }
+  .rt-cursor-block {
+    display: inline-block;
+    width: .55em;
+    height: .85em;
+    background: var(--blue);
+    vertical-align: middle;
+    margin-left: .1em;
+    box-shadow: 0 0 20px var(--blue);
+    animation: cursorBlink .7s step-end infinite;
+  }
+  /* Subtitle grid */
+  .rt-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .rt-stat {
+    padding: 1.2rem;
+    border: 1px solid rgba(0,170,255,0.08);
+    background: rgba(0,20,60,0.15);
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+  }
+  .rt-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,170,255,0.3), transparent);
+  }
+  .rt-stat-val {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--white);
+    line-height: 1;
+  }
+  .rt-stat-label {
+    font-family: var(--font-mono);
+    font-size: .55rem;
+    letter-spacing: .3em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-top: .3rem;
+  }
+  /* Scanning line effect */
+  .rt-scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,170,255,0.2), transparent);
+    animation: scanLine 3s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scanLine { 0% { top: 0; opacity: 0; } 5%{opacity:1} 95%{opacity:1} 100% { top: 100%; opacity: 0; } }
+
+  /* CTA SECTION */
+  #cta-section { padding: 10rem 3rem; text-align: center; position: relative; overflow: hidden; }
+  #cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle,rgba(0,80,200,0.12) 0%,transparent 70%); pointer-events: none; }
+  .cta-big-text { font-family: var(--font-display); font-size: clamp(4rem,12vw,10rem); line-height: .9; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.15); letter-spacing: .05em; pointer-events: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
+  .cta-content { position: relative; z-index: 2; }
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem,7vw,6rem);
+    line-height: .95;
+    background: linear-gradient(160deg, #ffffff 0%, #b8bec9 40%, #00aaff 70%, #e8eaf0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0,120,255,0.3));
+    margin-bottom: 1.5rem;
+  }
+  .cta-subtitle { font-size: 1rem; font-weight: 300; color: var(--silver); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 3rem; }
+
+  /* FOOTER */
+  footer { padding: 4rem 3rem 3rem; border-top: 1px solid rgba(255,255,255,0.05); }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+  .footer-logo { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: .3em; color: var(--white); margin-bottom: 1rem; }
+  .footer-tagline { font-size: .85rem; color: var(--silver); letter-spacing: .1em; line-height: 1.6; max-width: 260px; }
+  .footer-col h4 { font-family: var(--font-mono); font-size: .65rem; letter-spacing: .4em; color: var(--blue); text-transform: uppercase; margin-bottom: 1.5rem; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .8rem; }
+  .footer-col ul a { font-size: .9rem; color: var(--silver); text-decoration: none; letter-spacing: .05em; transition: color .3s; }
+  .footer-col ul a:hover { color: var(--white); }
+  .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); font-family: var(--font-mono); font-size: .6rem; letter-spacing: .2em; color: rgba(138,148,166,0.5); text-transform: uppercase; }
+
+  /* GLITCH */
+  .glitch { position: relative; }
+  .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .glitch::before { color: #0af; animation: glitch1 4s infinite; clip-path: polygon(0 20%,100% 20%,100% 40%,0 40%); }
+  .glitch::after { color: #f0a; animation: glitch2 4s infinite; clip-path: polygon(0 60%,100% 60%,100% 80%,0 80%); }
+  @keyframes glitch1 { 0%,95%,100%{transform:none;opacity:0}96%{transform:translate(-2px,1px);opacity:.5}97%{transform:translate(2px,-1px);opacity:.5}98%{transform:translate(-1px,0);opacity:.3} }
+  @keyframes glitch2 { 0%,95%,100%{transform:none;opacity:0}96%{transform:translate(2px,1px);opacity:.5}97%{transform:translate(-2px,-1px);opacity:.5}98%{transform:translate(1px,0);opacity:.3} }
+
+  .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     BOOK DRIVE POPUP
+  ═══════════════════════════════════════════════════════ */
+  #popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,3,5,0.85);
+    backdrop-filter: blur(16px);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s cubic-bezier(.25,1,.5,1);
+  }
+  #popup-overlay.active { opacity: 1; pointer-events: all; }
+  #popup-box {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(6,8,18,0.95);
+    border: 1px solid rgba(0,170,255,0.15);
+    position: relative;
+    padding: 3rem;
+    transform: translateY(40px) scale(.96);
+    transition: transform .5s cubic-bezier(.25,1,.5,1);
+    overflow: hidden;
+  }
+  #popup-overlay.active #popup-box { transform: translateY(0) scale(1); }
+  /* Top glow bar */
+  #popup-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--blue), rgba(180,220,255,0.8), var(--blue), transparent);
+    box-shadow: 0 0 20px var(--blue);
+  }
+  /* Corner brackets */
+  #popup-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 30px; height: 30px;
+    border-right: 1px solid rgba(0,170,255,0.3);
+    border-bottom: 1px solid rgba(0,170,255,0.3);
+  }
+  .popup-corner-tl {
+    position: absolute;
+    top: 0; left: 0;
+    width: 30px; height: 30px;
+    border-top: 1px solid rgba(0,170,255,0.3);
+    border-left: 1px solid rgba(0,170,255,0.3);
+  }
+  .popup-scan {
+    position: absolute;
+    left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(0,100,255,0.03), transparent);
+    pointer-events: none;
+    animation: cardScan 5s ease-in-out infinite;
+    z-index: 0;
+  }
+  .popup-close {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .3s, box-shadow .3s;
+    color: var(--silver);
+    font-size: 1rem;
+    line-height: 1;
+    z-index: 10;
+  }
+  .popup-close:hover { border-color: var(--blue); box-shadow: 0 0 15px var(--blue-dim); color: var(--white); }
+  .popup-eyebrow { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .5em; color: var(--blue); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .8rem; position: relative; z-index: 2; }
+  .popup-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--blue); box-shadow: 0 0 6px var(--blue); flex-shrink: 0; }
+  .popup-title { font-family: var(--font-display); font-size: 2.5rem; background: linear-gradient(135deg,#ffffff,#00aaff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: .95; margin-bottom: 2rem; position: relative; z-index: 2; }
+  .popup-form { display: flex; flex-direction: column; gap: 1.2rem; position: relative; z-index: 2; }
+  .popup-field { display: flex; flex-direction: column; gap: .4rem; }
+  .popup-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .3em; color: var(--silver); text-transform: uppercase; }
+  .popup-input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 300;
+    padding: .85rem 1rem;
+    outline: none;
+    cursor: none;
+    transition: border-color .3s, box-shadow .3s, background .3s;
+    letter-spacing: .05em;
+    clip-path: polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  }
+  .popup-input:focus { border-color: rgba(0,170,255,0.4); box-shadow: 0 0 20px rgba(0,100,255,0.1),inset 0 0 20px rgba(0,100,255,0.04); background: rgba(0,50,150,0.06); }
+  .popup-input::placeholder { color: rgba(138,148,166,0.4); }
+  /* Phone row */
+  .phone-row { display: flex; gap: .5rem; }
+  .phone-code-select {
+    flex: 0 0 110px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    padding: .85rem .8rem;
+    outline: none;
+    cursor: none;
+    transition: border-color .3s,box-shadow .3s;
+    letter-spacing: .05em;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238a94a6' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .6rem center;
+    clip-path: polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+  }
+  .phone-code-select:focus { border-color: rgba(0,170,255,0.4); }
+  .phone-code-select option { background: #0a0c14; }
+  .popup-btn {
+    margin-top: .8rem;
+    padding: 1.1rem;
+    background: var(--blue);
+    color: #000;
+    font-family: var(--font-body);
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .3s,transform .3s;
+    clip-path: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    width: 100%;
+  }
+  .popup-btn:hover { box-shadow: 0 0 40px var(--blue-glow),0 0 80px rgba(0,100,200,0.3); transform: translateY(-2px); }
+  .popup-btn:disabled { opacity: .5; transform: none; }
+  .popup-success {
+    display: none;
+    text-align: center;
+    padding: 2rem 0;
+    position: relative;
+    z-index: 2;
+  }
+  .popup-success-icon {
+    width: 60px; height: 60px;
+    border: 1px solid var(--blue);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 30px var(--blue-glow);
+  }
+  .popup-success-icon svg { width: 24px; height: 24px; stroke: var(--blue); fill: none; stroke-width: 2; }
+  .popup-success h3 { font-family: var(--font-display); font-size: 2rem; color: var(--white); margin-bottom: .5rem; }
+  .popup-success p { font-size: .9rem; color: var(--silver); font-weight: 300; }
+  .popup-note {
+    font-family: var(--font-mono);
+    font-size: .55rem;
+    color: rgba(138,148,166,0.4);
+    letter-spacing: .15em;
+    text-align: center;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    nav{padding:1.2rem 1.5rem}
+    .nav-links{display:none}
+    .manifesto-grid{grid-template-columns:1fr;gap:3rem}
+    .manifesto-visual{height:300px}
+    .exp-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr 1fr;gap:2rem}
+    .stats-inner{flex-wrap:wrap}
+    .stat-item{flex:0 0 50%}
+    .hero-cta-group{flex-direction:column}
+    #h-scroll-track{gap:1.5rem;padding:0 1.5rem}
+    .h-card{flex:0 0 320px;height:500px}
+    .h-card-img-wrap{height:200px}
+    .car-card-content{padding:2rem}
+    .rt-grid{grid-template-columns:1fr 1fr}
+    .exp-heading-wrap{flex-direction:column;gap:2rem}
+    .exp-heading-right{max-width:100%}
+    .flying-text-left,.flying-text-right{display:none}
+  }
+  @media(max-width:600px){
+    .footer-grid{grid-template-columns:1fr}
+    .stat-item{flex:0 0 100%}
+    .stat-item::after{display:none}
+    .swiper-slide{width:300px;height:240px}
+    #experience{padding:6rem 1.5rem}
+    #cta-section{padding:6rem 1.5rem}
+    #manifesto{padding:6rem 1.5rem}
+    .rt-grid{grid-template-columns:1fr}
+    #popup-box{padding:2rem 1.5rem}
+  }
+</style>
+
+<style id="ankur-project-credit-style">
+  .ankur-credit-footer{position:relative;z-index:10;text-align:center;padding:18px 14px;font-family:Arial, sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:#0b0b0f;color:rgba(255,255,255,.72);border-top:1px solid rgba(255,255,255,.12)}
+  .ankur-credit-footer strong{color:#f4c95d;font-weight:700}.ankur-credit-footer span{opacity:.72}</style>
+
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="mouse-glow"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div id="loader-logo" class="glitch" data-text="APEX">APEX</div>
+  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  <div id="loader-pct">INITIALIZING — <span id="loader-num">0</span>%</div>
+</div>
+
+<!-- BOOK DRIVE POPUP -->
+<div id="popup-overlay">
+  <div id="popup-box">
+    <div class="popup-corner-tl"></div>
+    <div class="popup-scan"></div>
+    <button class="popup-close" id="popup-close-btn">✕</button>
+    <div id="popup-form-wrap">
+      <div class="popup-eyebrow">Apex Experience</div>
+      <div class="popup-title">BOOK YOUR<br>TEST DRIVE</div>
+      <div class="popup-form" id="bookDriveForm">
+        <div class="popup-field">
+          <label class="popup-label">Full Name</label>
+          <input type="text" id="bd-name" class="popup-input" placeholder="Your name" autocomplete="off">
+        </div>
+        <div class="popup-field">
+          <label class="popup-label">Phone Number</label>
+          <div class="phone-row">
+            <select class="phone-code-select" id="bd-code">
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+65">🇸🇬 +65</option>
+              <option value="+81">🇯🇵 +81</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+33">🇫🇷 +33</option>
+              <option value="+39">🇮🇹 +39</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+86">🇨🇳 +86</option>
+              <option value="+7">🇷🇺 +7</option>
+              <option value="+55">🇧🇷 +55</option>
+              <option value="+27">🇿🇦 +27</option>
+              <option value="+82">🇰🇷 +82</option>
+            </select>
+            <input type="tel" id="bd-phone" class="popup-input" placeholder="Phone number" style="flex:1">
+          </div>
+        </div>
+        <div class="popup-field">
+          <label class="popup-label">Model Interest</label>
+          <select id="bd-model" class="popup-input phone-code-select" style="flex:1;width:100%;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))">
+            <option value="Book Drive">Book Drive — Spectre GT-R</option>
+            <option value="Book Drive">Book Drive — Phantom Ultra</option>
+            <option value="Book Drive">Book Drive — Void EVO</option>
+            <option value="Buy Car">Buy Car — Configure Now</option>
+            <option value="General Enquiry">General Enquiry</option>
+          </select>
+        </div>
+        <button class="popup-btn magnetic" id="popup-submit" data-mag>Submit Request</button>
+      </div>
+      <div class="popup-note">Your data is secure. We'll contact you within 24 hours.</div>
+    </div>
+    <div class="popup-success" id="popup-success-msg">
+      <div class="popup-success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>REQUEST RECEIVED</h3>
+      <p>Our team will contact you within 24 hours to confirm your experience.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SOUND TOGGLE -->
+<button id="sound-btn" title="Toggle Sound">
+  <svg id="sound-on-icon" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/><style>path{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}</style></svg>
+  <svg id="sound-off-icon" viewBox="0 0 24 24" style="display:none"><path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/><style>path{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}</style></svg>
+</button>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a href="#" class="nav-logo">APEX</a>
+  <ul class="nav-links">
+    <li><a href="#showcase">Models</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#cta-section">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="speed-lines" id="speed-lines"></div>
+  <div id="hero-car"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Est. 2024 — Apex Automotive Group</div>
+    <h1 class="hero-title">
+      <span class="hero-title-line">BEYOND</span>
+      <span class="hero-title-line">LIMITS</span>
+    </h1>
+    <p class="hero-subtitle">Engineering the future of automotive excellence</p>
+    <div class="hero-cta-group">
+      <button class="btn-primary magnetic" data-mag>Explore Models</button>
+      <button class="btn-secondary magnetic open-popup" data-mag>Book a Drive</button>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div id="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num"><span class="count-num" data-target="1847">0</span><span class="stat-unit">HP</span></div>
+      <div class="stat-label">Peak Power</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span class="count-num" data-target="1.8">0</span><span class="stat-unit">S</span></div>
+      <div class="stat-label">0–100 km/h</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span class="count-num" data-target="487">0</span><span class="stat-unit">KM/H</span></div>
+      <div class="stat-label">Top Speed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span class="count-num" data-target="12">0</span><span class="stat-unit"></span></div>
+      <div class="stat-label">Models Available</div>
+    </div>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="manifesto-grid">
+    <div class="manifesto-text">
+      <div class="section-eyebrow">Our Philosophy</div>
+      <h2 class="section-title" style="margin-bottom:2rem">THE PURSUIT<br>OF PERFECTION</h2>
+      <p>We don't build cars. We sculpt velocity. Every curve is calculated. Every surface is intentional. Every millisecond is engineered to make you feel something you've never felt before.</p>
+      <p>At APEX, we believe that a machine should be an extension of the human spirit — raw, powerful, precise, and alive. Our engineers don't clock in and out. They obsess.</p>
+      <div style="margin-top:2.5rem"><button class="btn-primary magnetic" data-mag>Our Story</button></div>
+    </div>
+    <div class="manifesto-visual">
+      <div class="manifesto-img-wrap">
+        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=900&q=80&fit=crop" alt="Car detail" class="manifesto-img">
+      </div>
+      <div class="manifesto-corner mc-tl"></div>
+      <div class="manifesto-corner mc-br"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CARS SHOWCASE -->
+<section id="showcase">
+  <div class="showcase-header">
+    <div class="section-eyebrow">2025 Lineup</div>
+    <h2 class="section-title">THE MACHINES</h2>
+  </div>
+  <div class="car-card" style="margin-bottom:4px">
+    <div class="car-card-bg" style="background-image:url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1600&q=85&fit=crop')"></div>
+    <div class="car-card-overlay"></div>
+    <div class="car-card-content">
+      <div class="car-tag">Limited Edition</div>
+      <div class="car-model">APEX / SPECTRE</div>
+      <div class="car-name">SPECTRE<br>GT-R</div>
+      <div class="car-specs">
+        <div class="car-spec"><span class="car-spec-val">1847</span><span class="car-spec-key">Horsepower</span></div>
+        <div class="car-spec"><span class="car-spec-val">1.8s</span><span class="car-spec-key">0–100</span></div>
+        <div class="car-spec"><span class="car-spec-val">487</span><span class="car-spec-key">Top Speed</span></div>
+      </div>
+      <button class="btn-primary magnetic" data-mag>Configure Now</button>
+    </div>
+  </div>
+  <div class="car-card" style="margin-bottom:4px">
+    <div class="car-card-bg" style="background-image:url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=85&fit=crop');background-position:50% 60%"></div>
+    <div class="car-card-overlay" style="background:linear-gradient(to left,rgba(3,3,5,0.9) 0%,rgba(3,3,5,0.3) 50%,rgba(3,3,5,0.1) 100%)"></div>
+    <div class="car-card-content" style="align-items:flex-end;text-align:right">
+      <div class="car-tag" style="margin-left:auto">Production Model</div>
+      <div class="car-model">APEX / PHANTOM</div>
+      <div class="car-name">PHANTOM<br>ULTRA</div>
+      <div class="car-specs" style="justify-content:flex-end">
+        <div class="car-spec" style="align-items:flex-end"><span class="car-spec-val">1240</span><span class="car-spec-key">Horsepower</span></div>
+        <div class="car-spec" style="align-items:flex-end"><span class="car-spec-val">2.1s</span><span class="car-spec-key">0–100</span></div>
+        <div class="car-spec" style="align-items:flex-end"><span class="car-spec-val">412</span><span class="car-spec-key">Top Speed</span></div>
+      </div>
+      <button class="btn-secondary magnetic" data-mag>Configure Now</button>
+    </div>
+  </div>
+  <div class="car-card">
+    <div class="car-card-bg" style="background-image:url('https://images.unsplash.com/photo-1616455579100-2ceaa4ec2d37?w=1600&q=85&fit=crop')"></div>
+    <div class="car-card-overlay" style="background:linear-gradient(to bottom,rgba(3,3,5,0) 30%,rgba(3,3,5,0.95) 100%)"></div>
+    <div class="car-card-content" style="justify-content:flex-end;align-items:center;text-align:center">
+      <div class="car-tag">Track Edition</div>
+      <div class="car-model">APEX / VOID</div>
+      <div class="car-name">VOID<br>EVO</div>
+      <div class="car-specs" style="justify-content:center">
+        <div class="car-spec" style="align-items:center"><span class="car-spec-val">2100</span><span class="car-spec-key">Horsepower</span></div>
+        <div class="car-spec" style="align-items:center"><span class="car-spec-val">1.5s</span><span class="car-spec-key">0–100</span></div>
+        <div class="car-spec" style="align-items:center"><span class="car-spec-val">520</span><span class="car-spec-key">Top Speed</span></div>
+      </div>
+      <button class="btn-primary magnetic" data-mag>Configure Now</button>
+    </div>
+  </div>
+</section>
+
+<!-- FLYING CAR SCROLL SECTION -->
+<section id="flying-car-section">
+  <div id="flying-car-sticky">
+    <div id="flying-car-bg"></div>
+    <div id="flying-car-grid">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <!-- Perspective grid -->
+        <defs>
+          <linearGradient id="gridGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#00aaff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#00aaff" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#00aaff" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <!-- Horizontal lines perspective -->
+        <line x1="0" y1="450" x2="1440" y2="450" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="530" x2="1440" y2="530" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="600" x2="1440" y2="600" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="660" x2="1440" y2="660" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="710" x2="1440" y2="710" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="752" x2="1440" y2="752" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="0" y1="790" x2="1440" y2="790" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <!-- Vertical converging lines -->
+        <line x1="720" y1="450" x2="0" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="1440" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="240" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="1200" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="480" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="960" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="360" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+        <line x1="720" y1="450" x2="1080" y2="900" stroke="url(#gridGrad)" stroke-width=".5"/>
+      </svg>
+    </div>
+
+    <!-- Atmospheric streaks -->
+    <div class="fcar-streak" style="left:15%"></div>
+    <div class="fcar-streak" style="left:30%"></div>
+    <div class="fcar-streak" style="left:50%"></div>
+    <div class="fcar-streak" style="left:70%"></div>
+    <div class="fcar-streak" style="left:85%"></div>
+
+    <!-- Engine trail -->
+    <div id="engine-trail"><div id="engine-trail-inner"></div></div>
+
+    <div class="flying-car-wrap">
+      <!-- Flying car SVG illustration — futuristic concept vehicle -->
+      <svg id="flying-car-img" viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+        <defs>
+          <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a2a4a"/>
+            <stop offset="30%" stop-color="#0d1a30"/>
+            <stop offset="60%" stop-color="#152238"/>
+            <stop offset="100%" stop-color="#080f1c"/>
+          </linearGradient>
+          <linearGradient id="topGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#2a4a7a"/>
+            <stop offset="50%" stop-color="#1a3060"/>
+            <stop offset="100%" stop-color="#0d1a38"/>
+          </linearGradient>
+          <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00aaff" stop-opacity="0"/>
+            <stop offset="30%" stop-color="#00aaff" stop-opacity="1"/>
+            <stop offset="70%" stop-color="#60dfff" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#00aaff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a3060"/>
+            <stop offset="100%" stop-color="#050d20"/>
+          </linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="engineGlow"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- Engine thrust flames -->
+        <g opacity="0.9" filter="url(#engineGlow)">
+          <ellipse cx="120" cy="235" rx="60" ry="8" fill="#00aaff" opacity="0.6"/>
+          <ellipse cx="95" cy="235" rx="35" ry="5" fill="#80e0ff" opacity="0.8"/>
+          <ellipse cx="75" cy="235" rx="20" ry="3" fill="white" opacity="0.9"/>
+        </g>
+        <g opacity="0.7" filter="url(#engineGlow)">
+          <ellipse cx="140" cy="258" rx="45" ry="6" fill="#0066cc" opacity="0.5"/>
+          <ellipse cx="120" cy="258" rx="25" ry="4" fill="#00aaff" opacity="0.7"/>
+          <ellipse cx="105" cy="258" rx="14" ry="2.5" fill="#60dfff" opacity="0.9"/>
+        </g>
+        <!-- Wing engines glow -->
+        <ellipse cx="200" cy="325" rx="30" ry="5" fill="#00aaff" opacity="0.4" filter="url(#glow)"/>
+        <ellipse cx="200" cy="325" rx="15" ry="3" fill="#80e0ff" opacity="0.6"/>
+
+        <!-- Main body — futuristic wedge -->
+        <path d="M 860 210
+                 L 780 190
+                 L 700 180
+                 L 600 175
+                 L 500 178
+                 L 380 185
+                 L 260 200
+                 L 160 225
+                 L 130 235
+                 L 160 248
+                 L 260 260
+                 L 380 268
+                 L 480 270
+                 L 560 268
+                 L 640 265
+                 L 720 260
+                 L 800 255
+                 L 860 248
+                 Z"
+              fill="url(#bodyGrad)" stroke="rgba(0,150,255,0.3)" stroke-width="1"/>
+
+        <!-- Cockpit canopy -->
+        <path d="M 680 175
+                 L 760 180
+                 L 830 196
+                 L 860 210
+                 L 860 220
+                 L 820 215
+                 L 760 205
+                 L 680 198
+                 Z"
+              fill="url(#topGrad)" stroke="rgba(0,200,255,0.4)" stroke-width="1"/>
+        <!-- Canopy glass -->
+        <path d="M 700 178
+                 L 780 184
+                 L 845 200
+                 L 855 210
+                 L 845 215
+                 L 780 208
+                 L 700 200
+                 Z"
+              fill="rgba(0,150,255,0.1)" stroke="rgba(100,200,255,0.6)" stroke-width=".5"/>
+        <!-- Cockpit highlight -->
+        <path d="M 720 180 L 800 186 L 840 198 L 800 196 L 720 190 Z" fill="rgba(150,220,255,0.12)"/>
+
+        <!-- Forward fuselage ridge -->
+        <path d="M 130 235 L 500 220 L 680 212 L 860 210 L 860 218 L 680 220 L 500 228 L 130 242 Z"
+              fill="rgba(0,100,200,0.15)" stroke="rgba(0,170,255,0.25)" stroke-width=".5"/>
+
+        <!-- Side panel lines -->
+        <line x1="200" y1="228" x2="600" y2="210" stroke="rgba(0,170,255,0.2)" stroke-width=".5"/>
+        <line x1="200" y1="248" x2="600" y2="260" stroke="rgba(0,170,255,0.15)" stroke-width=".5"/>
+        <line x1="300" y1="224" x2="600" y2="213" stroke="rgba(0,170,255,0.1)" stroke-width=".5"/>
+
+        <!-- Rear wing (big) -->
+        <path d="M 160 235
+                 L 220 200
+                 L 280 185
+                 L 310 188
+                 L 310 200
+                 L 280 205
+                 L 240 215
+                 L 200 235
+                 Z"
+              fill="url(#wingGrad)" stroke="rgba(0,150,255,0.4)" stroke-width=".8"/>
+        <!-- Wing underside -->
+        <path d="M 160 235
+                 L 220 268
+                 L 280 278
+                 L 310 275
+                 L 310 265
+                 L 280 262
+                 L 240 254
+                 L 200 240
+                 Z"
+              fill="url(#wingGrad)" stroke="rgba(0,150,255,0.3)" stroke-width=".8"/>
+
+        <!-- Wing accent glow line -->
+        <line x1="220" y1="200" x2="310" y2="190" stroke="url(#glowGrad)" stroke-width="1.5" filter="url(#glow)"/>
+        <line x1="220" y1="270" x2="310" y2="274" stroke="rgba(0,170,255,0.3)" stroke-width=".8"/>
+
+        <!-- Lower aero fin -->
+        <path d="M 200 255 L 200 325 L 230 315 L 230 258 Z" fill="url(#wingGrad)" stroke="rgba(0,150,255,0.25)" stroke-width=".6"/>
+        <path d="M 230 258 L 230 315 L 310 305 L 310 265 Z" fill="rgba(8,18,40,0.9)" stroke="rgba(0,150,255,0.2)" stroke-width=".6"/>
+
+        <!-- Blue glow accent lines on body -->
+        <path d="M 400 185 L 650 180 L 760 186" stroke="url(#glowGrad)" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+        <path d="M 400 265 L 600 262 L 720 258" stroke="rgba(0,170,255,0.3)" stroke-width=".8" fill="none"/>
+
+        <!-- Front blade -->
+        <path d="M 130 232 L 145 228 L 160 228 L 160 242 L 145 242 L 130 238 Z"
+              fill="rgba(0,80,160,0.8)" stroke="rgba(0,170,255,0.5)" stroke-width=".8"/>
+
+        <!-- Sensor bumps on top -->
+        <ellipse cx="700" cy="196" rx="15" ry="4" fill="rgba(0,80,160,0.6)" stroke="rgba(0,170,255,0.3)" stroke-width=".5"/>
+        <ellipse cx="750" cy="192" rx="10" ry="3" fill="rgba(0,80,160,0.6)" stroke="rgba(0,170,255,0.3)" stroke-width=".5"/>
+
+        <!-- Engine pods -->
+        <ellipse cx="165" cy="235" rx="40" ry="14" fill="rgba(10,20,50,0.9)" stroke="rgba(0,120,255,0.5)" stroke-width="1"/>
+        <ellipse cx="165" cy="235" rx="28" ry="9" fill="rgba(0,30,80,0.8)" stroke="rgba(0,170,255,0.4)" stroke-width=".5"/>
+        <!-- Inner engine ring glow -->
+        <ellipse cx="148" cy="235" rx="14" ry="7" fill="rgba(0,100,200,0.4)" stroke="rgba(0,200,255,0.8)" stroke-width=".5" filter="url(#glow)"/>
+        <ellipse cx="148" cy="235" rx="8" ry="4" fill="rgba(0,160,255,0.8)"/>
+        <ellipse cx="148" cy="235" rx="4" ry="2" fill="white" opacity="0.9"/>
+
+        <!-- Second engine pod -->
+        <ellipse cx="175" cy="257" rx="32" ry="10" fill="rgba(10,20,50,0.9)" stroke="rgba(0,120,255,0.4)" stroke-width=".8"/>
+        <ellipse cx="160" cy="257" rx="12" ry="6" fill="rgba(0,80,160,0.5)" stroke="rgba(0,200,255,0.6)" stroke-width=".5" filter="url(#glow)"/>
+        <ellipse cx="160" cy="257" rx="6" ry="3" fill="rgba(0,140,220,0.9)"/>
+
+        <!-- Underbody thrust vents -->
+        <rect x="280" y="264" width="80" height="3" rx="1.5" fill="rgba(0,170,255,0.3)" filter="url(#glow)"/>
+        <rect x="380" y="266" width="60" height="2" rx="1" fill="rgba(0,170,255,0.2)"/>
+        <rect x="460" y="267" width="40" height="2" rx="1" fill="rgba(0,170,255,0.2)"/>
+
+        <!-- Headlight slits at rear of nose -->
+        <rect x="140" y="228" width="20" height="2" rx="1" fill="rgba(0,200,255,0.9)" filter="url(#glow)"/>
+        <rect x="140" y="240" width="20" height="2" rx="1" fill="rgba(0,200,255,0.9)" filter="url(#glow)"/>
+        <!-- Side running lights -->
+        <rect x="300" y="224" width="8" height="1.5" rx=".75" fill="rgba(0,170,255,0.8)"/>
+        <rect x="500" y="218" width="6" height="1.5" rx=".75" fill="rgba(0,170,255,0.6)"/>
+        <rect x="620" y="213" width="6" height="1.5" rx=".75" fill="rgba(0,170,255,0.5)"/>
+      </svg>
+    </div>
+
+    <!-- Text overlays -->
+    <div class="flying-text-block flying-text-left">
+      <div class="flying-caption">APEX / 2025</div>
+      <div class="flying-big">BEYOND<br>ATMOSPHERE</div>
+      <div class="flying-sub">Gen-IV Levitation Drive</div>
+    </div>
+    <div class="flying-text-block flying-text-right">
+      <div class="flying-caption">THRUST OUTPUT</div>
+      <div class="flying-big">4,200<br>NEWTONS</div>
+      <div class="flying-sub">Quantum Propulsion System</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY — REDESIGNED HORIZONTAL SCROLL -->
+<section id="h-scroll">
+  <div id="h-scroll-bg">
+    <!-- Subtle background futuristic car silhouettes -->
+    <svg class="hbg-car" style="bottom:-5%;left:-10%;width:60%" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 20 130 Q 100 80 200 75 Q 300 70 400 78 Q 480 83 560 130 L 580 145 L 580 165 L 20 165 Z" fill="#00aaff"/>
+      <ellipse cx="120" cy="168" rx="28" ry="12" fill="#00aaff"/>
+      <ellipse cx="460" cy="168" rx="28" ry="12" fill="#00aaff"/>
+    </svg>
+    <svg class="hbg-car" style="top:-5%;right:-5%;width:50%;animation-delay:-6s" viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 10 110 L 80 70 L 200 60 L 320 65 L 430 80 L 490 110 L 490 140 L 10 140 Z" fill="#0066cc"/>
+      <ellipse cx="100" cy="143" rx="22" ry="10" fill="#0066cc"/>
+      <ellipse cx="380" cy="143" rx="22" ry="10" fill="#0066cc"/>
+    </svg>
+  </div>
+  <div id="h-scroll-sticky">
+    <div id="h-scroll-track">
+      <!-- TITLE CARD -->
+      <div class="h-title-card">
+        <div class="section-eyebrow">Technology</div>
+        <div class="exp-main-title">
+          <span class="exp-title-line-1">CRAFTED</span>
+          <span class="exp-title-line-1">WITH</span>
+          <span class="exp-title-line-2">OBSESSION</span>
+        </div>
+        <div class="h-live-display">
+          <div class="h-live-line">&gt; SYSTEM BOOT COMPLETE</div>
+          <div class="h-live-line">&gt; ENGINE: ONLINE</div>
+          <div class="h-live-line">&gt; AI CORE: ACTIVE<span class="h-live-cursor"></span></div>
+        </div>
+      </div>
+
+      <!-- CARD 1 -->
+      <div class="h-card">
+        <div class="h-card-accent"></div>
+        <div class="h-card-scan"></div>
+        <div class="h-card-glow-edge"></div>
+        <div class="h-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1585650228491-78bf6a0ea695?w=600&q=80&fit=crop" alt="Engine" class="h-card-img">
+          <div class="h-card-img-overlay"></div>
+          <div class="h-card-float-tag">V12 HYBRID</div>
+        </div>
+        <div class="h-card-body">
+          <div class="h-card-label">Powertrain</div>
+          <div class="h-card-title">FUSION V12</div>
+          <div class="h-card-desc">Hybrid-electric V12 delivering instantaneous torque across the entire RPM range.</div>
+          <div class="h-card-metrics">
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Performance</span><span>9.5</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:95%"></div></div>
+            </div>
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Efficiency</span><span>8.2</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:82%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="exp-num">01</div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="h-card">
+        <div class="h-card-accent"></div>
+        <div class="h-card-scan" style="animation-delay:-2s"></div>
+        <div class="h-card-glow-edge"></div>
+        <div class="h-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop" alt="Aero" class="h-card-img">
+          <div class="h-card-img-overlay"></div>
+          <div class="h-card-float-tag">ACTIVE AERO</div>
+        </div>
+        <div class="h-card-body">
+          <div class="h-card-label">Aerodynamics</div>
+          <div class="h-card-title">ACTIVE AERO</div>
+          <div class="h-card-desc">Adaptive wing systems generating up to 1,200kg of downforce at full speed.</div>
+          <div class="h-card-metrics">
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Downforce</span><span>9.8</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:98%"></div></div>
+            </div>
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Drag Coeff.</span><span>0.18</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:88%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="exp-num">02</div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="h-card">
+        <div class="h-card-accent"></div>
+        <div class="h-card-scan" style="animation-delay:-1s"></div>
+        <div class="h-card-glow-edge"></div>
+        <div class="h-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80&fit=crop" alt="Cockpit" class="h-card-img">
+          <div class="h-card-img-overlay"></div>
+          <div class="h-card-float-tag">NEURAL UI</div>
+        </div>
+        <div class="h-card-body">
+          <div class="h-card-label">Cockpit</div>
+          <div class="h-card-title">PILOT CORE</div>
+          <div class="h-card-desc">Immersive driver cockpit with haptic feedback and AI neural interface readiness.</div>
+          <div class="h-card-metrics">
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Immersion</span><span>9.2</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:92%"></div></div>
+            </div>
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Response</span><span>0.3ms</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:97%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="exp-num">03</div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="h-card">
+        <div class="h-card-accent"></div>
+        <div class="h-card-scan" style="animation-delay:-3s"></div>
+        <div class="h-card-glow-edge"></div>
+        <div class="h-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=600&q=80&fit=crop" alt="Chassis" class="h-card-img">
+          <div class="h-card-img-overlay"></div>
+          <div class="h-card-float-tag">CARBON-TI</div>
+        </div>
+        <div class="h-card-body">
+          <div class="h-card-label">Structure</div>
+          <div class="h-card-title">MONO-CELL</div>
+          <div class="h-card-desc">Carbon-titanium monocoque weighing only 82kg — stronger than steel, 3× lighter.</div>
+          <div class="h-card-metrics">
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Rigidity</span><span>9.9</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:99%"></div></div>
+            </div>
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Weight</span><span>82kg</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:76%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="exp-num">04</div>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="h-card">
+        <div class="h-card-accent"></div>
+        <div class="h-card-scan" style="animation-delay:-1.5s"></div>
+        <div class="h-card-glow-edge"></div>
+        <div class="h-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=600&q=80&fit=crop" alt="Wheels" class="h-card-img">
+          <div class="h-card-img-overlay"></div>
+          <div class="h-card-float-tag">E-AWD</div>
+        </div>
+        <div class="h-card-body">
+          <div class="h-card-label">Dynamics</div>
+          <div class="h-card-title">TORQUE VECTOR</div>
+          <div class="h-card-desc">Four-motor e-AWD with individual wheel torque vectoring and predictive AI suspension.</div>
+          <div class="h-card-metrics">
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Control</span><span>9.4</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:94%"></div></div>
+            </div>
+            <div class="h-card-metric">
+              <div class="h-card-metric-head"><span>Lateral G</span><span>3.2G</span></div>
+              <div class="h-card-bar-track"><div class="h-card-bar-fill" style="--pct:86%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="exp-num">05</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-header">
+    <div class="section-eyebrow">Visual Archive</div>
+    <h2 class="section-title">GALLERY</h2>
+  </div>
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80&fit=crop" alt="Car 1"><span class="slide-label">Spectre GT-R</span></div>
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=800&q=80&fit=crop" alt="Car 2"><span class="slide-label">Phantom Ultra</span></div>
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1471444928139-48c5bf5173f8?w=800&q=80&fit=crop" alt="Car 3"><span class="slide-label">Void EVO</span></div>
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80&fit=crop" alt="Car 4"><span class="slide-label">Apex R-Type</span></div>
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80&fit=crop" alt="Car 5"><span class="slide-label">Night Runner</span></div>
+      <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=80&fit=crop" alt="Car 6"><span class="slide-label">Circuit Edition</span></div>
+    </div>
+    <div class="swiper-scrollbar" style="bottom:-1px;height:1px;background:rgba(255,255,255,0.05)"></div>
+  </div>
+</section>
+
+<!-- REAL-TIME TEXT SECTION -->
+<section id="realtime-text">
+  <div class="rt-bg"></div>
+  <div class="rt-scan-line"></div>
+  <div class="rt-container">
+    <div class="rt-eyebrow">Live Performance Data</div>
+    <div class="rt-display">
+      <span class="rt-display-word" id="rt-word">ENGINEERING PERFECTION</span><span class="rt-cursor-block"></span>
+    </div>
+    <div class="rt-grid">
+      <div class="rt-stat">
+        <div class="rt-stat-val" id="rt-rpm">8,400</div>
+        <div class="rt-stat-label">RPM Redline</div>
+      </div>
+      <div class="rt-stat">
+        <div class="rt-stat-val" id="rt-boost">3.2 BAR</div>
+        <div class="rt-stat-label">Boost Pressure</div>
+      </div>
+      <div class="rt-stat">
+        <div class="rt-stat-val" id="rt-temp">820°C</div>
+        <div class="rt-stat-label">Exhaust Temp</div>
+      </div>
+      <div class="rt-stat">
+        <div class="rt-stat-val" id="rt-g">3.8G</div>
+        <div class="rt-stat-label">Lateral Force</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE / WHY APEX — REDESIGNED -->
+<section id="experience">
+  <div class="exp-section-num">06</div>
+  <div class="exp-heading-wrap">
+    <div class="exp-heading-left">
+      <div class="section-eyebrow">Why Apex</div>
+      <div class="exp-main-title">
+        <span class="exp-title-line-1">THE APEX</span>
+        <span class="exp-title-line-2">ADVANTAGE</span>
+      </div>
+      <div class="exp-divider">
+        <div class="exp-divider-line"></div>
+        <div class="exp-divider-text">Six pillars of excellence</div>
+      </div>
+    </div>
+    <div class="exp-heading-right">
+      <p>Six fundamental principles that separate APEX from everything else on the road — and above it. Each pillar represents decades of obsessive refinement.</p>
+    </div>
+  </div>
+
+  <div class="exp-grid">
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">01</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><path d="M24 4v20l14 8"/></svg></div>
+        <div class="exp-card-title">Obsessive Engineering</div>
+        <div class="exp-card-text">Every component is engineered to molecular precision. We run 40,000+ simulations before a single prototype is built.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">Simulations<span>40,000+</span></div>
+        <div class="exp-card-stat">Tolerance<span>±0.001mm</span></div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">02</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><polygon points="24,4 44,16 44,32 24,44 4,32 4,16"/><path d="M24 4v40M4 16l40 0M4 32l40 0"/></svg></div>
+        <div class="exp-card-title">Aerodynamic Mastery</div>
+        <div class="exp-card-text">Computational fluid dynamics shapes every surface. Cars that don't just cut through air — they command it.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">Cd Coefficient<span>0.18</span></div>
+        <div class="exp-card-stat">Downforce<span>1,200kg</span></div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">03</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><path d="M6 24c0-9.9 8.1-18 18-18s18 8.1 18 18M24 6v6M24 42v-6M42 24h-6M6 24h6"/><circle cx="24" cy="24" r="6"/></svg></div>
+        <div class="exp-card-title">Neural Intelligence</div>
+        <div class="exp-card-text">AI-driven systems learn your driving style, predict road conditions, and optimize performance in real-time.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">AI Response<span>0.3ms</span></div>
+        <div class="exp-card-stat">Learn Cycles<span>1M+/sec</span></div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">04</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><path d="M8 36V12l16-8 16 8v24l-16 8-16-8z"/><path d="M24 4v40M8 12l16 8 16-8"/></svg></div>
+        <div class="exp-card-title">Carbon Architecture</div>
+        <div class="exp-card-text">Our proprietary carbon-titanium matrix is 40% lighter than conventional alloys with 3× the tensile strength.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">Weight<span>82kg</span></div>
+        <div class="exp-card-stat">Strength<span>3× Steel</span></div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">05</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><path d="M24 4l6 14h14l-11 8 4 14-13-9-13 9 4-14L4 18h14z"/></svg></div>
+        <div class="exp-card-title">Heritage & Prestige</div>
+        <div class="exp-card-text">Built by former Formula 1 and aerospace engineers with 200+ combined years of racing pedigree.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">F1 Engineers<span>24 Alumni</span></div>
+        <div class="exp-card-stat">Race Wins<span>847</span></div>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-card-inner">
+        <div class="exp-badge"><span class="exp-badge-num">06</span></div>
+        <div class="exp-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><path d="M24 16v8l6 6"/><path d="M14 24a10 10 0 0 1 10-10"/></svg></div>
+        <div class="exp-card-title">Bespoke Program</div>
+        <div class="exp-card-text">Every APEX is configurable to 10¹² unique combinations. Your machine is yours alone — in every sense.</div>
+      </div>
+      <div class="exp-card-footer">
+        <div class="exp-card-stat">Combinations<span>10¹²</span></div>
+        <div class="exp-card-stat">Delivery<span>18 months</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section id="cta-section">
+  <div class="cta-big-text">APEX</div>
+  <div class="glow-orb" style="width:600px;height:600px;top:-100px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(0,80,200,0.08),transparent)"></div>
+  <div class="cta-content">
+    <div class="section-eyebrow" style="justify-content:center;margin-bottom:1rem">Reserve Your Machine</div>
+    <h2 class="cta-title">READY TO FEEL<br>ALIVE?</h2>
+    <p class="cta-subtitle">Production limited to 48 units globally</p>
+    <div style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn-primary magnetic" data-mag>Reserve Now</button>
+      <button class="btn-secondary magnetic open-popup" data-mag>Book a Drive</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">APEX</div>
+      <div class="footer-tagline">Engineering machines that transform the relationship between man and motion since 2024.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Models</h4>
+      <ul><li><a href="#">Spectre GT-R</a></li><li><a href="#">Phantom Ultra</a></li><li><a href="#">Void EVO</a></li><li><a href="#">R-Type Classic</a></li></ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul><li><a href="#">About</a></li><li><a href="#">Technology</a></li><li><a href="#">Careers</a></li><li><a href="#">Press</a></li></ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul><li><a href="#">Showrooms</a></li><li><a href="#" class="open-popup">Configure</a></li><li><a href="#" class="open-popup">Reserve</a></li><li><a href="#">Support</a></li></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Apex Automotive Group. All rights reserved.</span>
+    <span>Crafted with obsession</span>
+  </div>
+</footer>
+
+<!-- ╔══════════════════════════════════════════╗
+     GOOGLE APPS SCRIPT CODE (reference below)
+     Deploy as Web App from script.google.com
+     ╚══════════════════════════════════════════╝ -->
+<!-- PASTE YOUR WEB APP URL HERE after deploying Apps Script -->
+<script>
+const SHEETS_URL = ''; // <-- paste your deployed Apps Script URL here
+</script>
+
+<script>
+// =====================
+// THREE.JS BACKGROUND
+// =====================
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 80;
+  const pCount = 1200;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(pCount * 3), col = new Float32Array(pCount * 3), sz = new Float32Array(pCount);
+  for (let i = 0; i < pCount; i++) {
+    pos[i*3]=(Math.random()-.5)*300; pos[i*3+1]=(Math.random()-.5)*200; pos[i*3+2]=(Math.random()-.5)*150;
+    const b=Math.random()>.6; col[i*3]=b?0:.5; col[i*3+1]=b?.5:.5; col[i*3+2]=b?1:.7;
+    sz[i]=Math.random()*2+.5;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+  const mat = new THREE.PointsMaterial({ size:.8, vertexColors:true, transparent:true, opacity:.4, blending:THREE.AdditiveBlending, depthWrite:false });
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+  let mx=0, my=0;
+  document.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-.5)*2; my=(e.clientY/window.innerHeight-.5)*2; });
+  window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+  let t=0;
+  function animate() {
+    requestAnimationFrame(animate); t+=.003;
+    particles.rotation.y=t*.05+mx*.1; particles.rotation.x=my*.05;
+    camera.position.x+=(mx*5-camera.position.x)*.02; camera.position.y+=(-my*3-camera.position.y)*.02;
+    camera.lookAt(scene.position); mat.opacity=.25+Math.sin(t)*.1;
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// =====================
+// LENIS SMOOTH SCROLL
+// =====================
+const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
+// =====================
+// CURSOR
+// =====================
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+const mouseGlow = document.getElementById('mouse-glow');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  cx=e.clientX; cy=e.clientY;
+  gsap.to(cursor,{x:cx,y:cy,duration:.1});
+  gsap.to(mouseGlow,{x:cx,y:cy,duration:.5});
+});
+function animateRing() { rx+=(cx-rx)*.12; ry+=(cy-ry)*.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animateRing); }
+animateRing();
+
+// =====================
+// SPEED LINES
+// =====================
+const slContainer = document.getElementById('speed-lines');
+for (let i=0;i<12;i++) {
+  const l=document.createElement('div'); l.classList.add('speed-line');
+  l.style.top=(20+Math.random()*60)+'%'; l.style.width=(20+Math.random()*40)+'%';
+  l.style.animationDelay=(Math.random()*4)+'s'; l.style.animationDuration=(2+Math.random()*3)+'s';
+  l.style.opacity=.1+Math.random()*.3; slContainer.appendChild(l);
+}
+
+// =====================
+// GSAP PLUGINS
+// =====================
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+// =====================
+// LOADER
+// =====================
+const loaderBar = document.getElementById('loader-bar');
+const loaderNum = document.getElementById('loader-num');
+gsap.to('#loader-logo', {opacity:1,duration:.8,delay:.2});
+let progress=0;
+const li = setInterval(() => {
+  progress+=Math.random()*12;
+  if(progress>=100){progress=100;clearInterval(li);finishLoad();}
+  loaderBar.style.width=progress+'%';
+  loaderNum.textContent=Math.floor(progress);
+},80);
+function finishLoad() {
+  setTimeout(()=>{
+    gsap.to('#loader',{opacity:0,duration:.8,ease:'power2.inOut',onComplete:()=>{document.getElementById('loader').style.display='none';startHero();}});
+  },400);
+}
+
+// =====================
+// HERO
+// =====================
+function startHero() {
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  tl.to('.hero-title-line',{y:'0%',duration:1.2,stagger:.15})
+    .to('.hero-eyebrow',{opacity:1,y:0,duration:.8},'-=0.6')
+    .to('.hero-subtitle',{opacity:1,duration:.8},'-=0.4')
+    .to('.hero-cta-group',{opacity:1,duration:.8},'-=0.4')
+    .to('.scroll-ind',{opacity:1,duration:.8},'-=0.2');
+  gsap.to('#hero-car',{yPercent:20,ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:1}});
+  gsap.to('#hero-car',{scale:1,duration:2,ease:'power2.out',delay:.5});
+}
+
+// =====================
+// SCROLL ANIMATIONS
+// =====================
+document.querySelectorAll('.section-title').forEach(el=>{
+  gsap.from(el,{y:60,opacity:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 85%'}});
+});
+// Exp headings
+gsap.from('.exp-main-title .exp-title-line-1, .exp-main-title .exp-title-line-2',{
+  y:80,opacity:0,duration:1.1,stagger:.12,ease:'power3.out',
+  scrollTrigger:{trigger:'.exp-heading-wrap',start:'top 80%'}
+});
+gsap.from('.exp-heading-right p',{
+  x:40,opacity:0,duration:1,ease:'power3.out',
+  scrollTrigger:{trigger:'.exp-heading-wrap',start:'top 75%'}
+});
+gsap.from('.exp-divider',{
+  scaleX:0,opacity:0,duration:.8,ease:'power3.out',transformOrigin:'left center',
+  scrollTrigger:{trigger:'.exp-heading-wrap',start:'top 70%'}
+});
+
+// Stats
+function animateCounter(el) {
+  const target=parseFloat(el.dataset.target), isDec=target%1!==0;
+  gsap.fromTo(el,{textContent:0},{textContent:target,duration:2,ease:'power2.out',snap:{textContent:isDec?.1:1},
+    onUpdate:function(){if(isDec)el.textContent=parseFloat(el.textContent).toFixed(1);},
+    scrollTrigger:{trigger:el,start:'top 85%',once:true}});
+}
+document.querySelectorAll('.count-num').forEach(animateCounter);
+
+// Car cards
+document.querySelectorAll('.car-card-bg').forEach(el=>{
+  gsap.fromTo(el,{yPercent:-5},{yPercent:5,ease:'none',scrollTrigger:{trigger:el.parentElement,start:'top bottom',end:'bottom top',scrub:1}});
+});
+
+// Manifesto
+gsap.from('.manifesto-text > *',{y:40,opacity:0,duration:.9,stagger:.15,ease:'power3.out',scrollTrigger:{trigger:'#manifesto',start:'top 70%'}});
+gsap.from('.manifesto-img-wrap',{clipPath:'polygon(0 100%,100% 100%,100% 100%,0 100%)',duration:1.2,ease:'power3.inOut',scrollTrigger:{trigger:'#manifesto',start:'top 65%'}});
+
+// Exp cards
+gsap.from('.exp-card',{y:60,opacity:0,duration:.9,stagger:.08,ease:'power3.out',scrollTrigger:{trigger:'.exp-grid',start:'top 80%'}});
+
+// Swiper
+gsap.from('.swiper-slide',{x:60,opacity:0,duration:.8,stagger:.1,ease:'power3.out',scrollTrigger:{trigger:'#gallery',start:'top 75%'}});
+
+// CTA
+gsap.from('.cta-title',{y:40,opacity:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:'#cta-section',start:'top 70%'}});
+
+// RT section
+gsap.from('.rt-display',{y:40,opacity:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:'#realtime-text',start:'top 75%'}});
+gsap.from('.rt-grid .rt-stat',{y:30,opacity:0,duration:.7,stagger:.1,ease:'power3.out',scrollTrigger:{trigger:'.rt-grid',start:'top 80%'}});
+
+// =====================
+// FLYING CAR ANIMATION
+// =====================
+const flyingCarTL = gsap.timeline({
+  scrollTrigger:{
+    trigger:'#flying-car-section',
+    start:'top top',
+    end:'+=100%',
+    scrub:1.5,
+    pin:'#flying-car-sticky',
+    anticipatePin:1
+  }
+});
+flyingCarTL
+  .to('#flying-car-img',{x:0,y:0,rotation:0,duration:1,ease:'power3.out'},'0')
+  .to('#flying-car-img',{
+    filter:'drop-shadow(0 0 80px rgba(0,170,255,0.7)) drop-shadow(0 30px 60px rgba(0,0,0,0.8)) brightness(1.15)',
+    duration:.5
+  },'0.3')
+  .to('#engine-trail',{opacity:1,duration:.2},'0')
+  .to('#engine-trail-inner',{width:'70%',duration:.6,ease:'power2.out'},'0.05')
+  .to('#engine-trail-inner',{width:'0%',duration:.4,ease:'power2.in'},'0.65')
+  .to('#engine-trail',{opacity:0,duration:.2},'0.85')
+  .to('.flying-text-left',{opacity:1,y:0,duration:.6,ease:'power3.out'},'0.5')
+  .to('.flying-text-right',{opacity:1,y:0,duration:.6,ease:'power3.out'},'0.55')
+  // Slow float
+  .to('#flying-car-img',{y:-15,duration:.5,ease:'sine.inOut',yoyo:true,repeat:1},'0.7');
+
+// =====================
+// HORIZONTAL SCROLL
+// =====================
+const track = document.getElementById('h-scroll-track');
+const hScrollSection = document.getElementById('h-scroll');
+function setupHScroll() {
+  const scrollDist = track.scrollWidth - window.innerWidth + 96;
+  gsap.to(track,{x:-scrollDist,ease:'none',
+    scrollTrigger:{trigger:hScrollSection,start:'top top',end:'+='+(scrollDist+window.innerWidth),scrub:1,pin:true,anticipatePin:1}
+  });
+}
+setupHScroll();
+
+// =====================
+// SWIPER
+// =====================
+new Swiper('.mySwiper',{
+  slidesPerView:'auto', spaceBetween:24, freeMode:true, grabCursor:true,
+  scrollbar:{el:'.swiper-scrollbar',draggable:true},
+  breakpoints:{320:{slidesPerView:1.2},640:{slidesPerView:2.2},1024:{slidesPerView:3.5}}
+});
+
+// =====================
+// REALTIME TEXT EFFECT
+// =====================
+const rtWords = [
+  'ENGINEERING PERFECTION', 'BEYOND VELOCITY', 'PURE ADRENALINE',
+  'QUANTUM MECHANICS', 'APEX PREDATOR', 'FUTURE IS NOW',
+  'ZERO COMPROMISE', 'MACHINE DREAMS', 'CARBON & FIRE'
+];
+let rtIndex=0;
+const rtWordEl=document.getElementById('rt-word');
+function cycleRTWord(){
+  gsap.to(rtWordEl,{opacity:0,y:-20,duration:.3,ease:'power2.in',onComplete:()=>{
+    rtIndex=(rtIndex+1)%rtWords.length;
+    rtWordEl.textContent=rtWords[rtIndex];
+    gsap.to(rtWordEl,{opacity:1,y:0,duration:.4,ease:'power2.out'});
+  }});
+}
+setInterval(cycleRTWord, 2800);
+
+// Live telemetry simulation
+const rpmEl=document.getElementById('rt-rpm');
+const boostEl=document.getElementById('rt-boost');
+const tempEl=document.getElementById('rt-temp');
+const gEl=document.getElementById('rt-g');
+setInterval(()=>{
+  if(!document.getElementById('realtime-text').getBoundingClientRect) return;
+  rpmEl.textContent=(7200+Math.round(Math.random()*1800)).toLocaleString();
+  boostEl.textContent=(2.8+Math.random()*.8).toFixed(1)+' BAR';
+  tempEl.textContent=(780+Math.round(Math.random()*80))+'°C';
+  gEl.textContent=(3.2+Math.random()*.9).toFixed(1)+'G';
+},900);
+
+// =====================
+// SOUND
+// =====================
+let soundEnabled=false;
+const sounds={
+  hover:new Howl({src:['https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3'],volume:.15,preload:false}),
+  click:new Howl({src:['https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3'],volume:.3,preload:false}),
+};
+document.getElementById('sound-btn').addEventListener('click',()=>{
+  soundEnabled=!soundEnabled;
+  document.getElementById('sound-on-icon').style.display=soundEnabled?'block':'none';
+  document.getElementById('sound-off-icon').style.display=soundEnabled?'none':'block';
+});
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{if(soundEnabled){try{sounds.hover.play()}catch(e){}}});
+  el.addEventListener('click',()=>{if(soundEnabled){try{sounds.click.play()}catch(e){}}});
+});
+
+// =====================
+// MAGNETIC BUTTONS
+// =====================
+document.querySelectorAll('[data-mag]').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*.3,y:(e.clientY-r.top-r.height/2)*.3,duration:.4,ease:'power2.out'});
+  });
+  btn.addEventListener('mouseleave',()=>gsap.to(btn,{x:0,y:0,duration:.6,ease:'elastic.out(1,.5)'}));
+});
+
+// =====================
+// POPUP
+// =====================
+const popupOverlay=document.getElementById('popup-overlay');
+document.querySelectorAll('.open-popup').forEach(el=>{
+  el.addEventListener('click',e=>{e.preventDefault();popupOverlay.classList.add('active');document.body.style.overflow='hidden';});
+});
+document.getElementById('popup-close-btn').addEventListener('click',closePopup);
+popupOverlay.addEventListener('click',e=>{if(e.target===popupOverlay)closePopup();});
+function closePopup(){popupOverlay.classList.remove('active');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePopup();});
+
+// Popup form submit
+document.getElementById('popup-submit').addEventListener('click', async()=>{
+  const name=document.getElementById('bd-name').value.trim();
+  const code=document.getElementById('bd-code').value;
+  const phone=document.getElementById('bd-phone').value.trim();
+  const context=document.getElementById('bd-model').value;
+  if(!name||!phone){
+    gsap.fromTo('#popup-box',{x:0},{x:[-8,8,-6,6,-4,4,0].map(v=>v),duration:.4,ease:'none'});
+    gsap.to('#popup-box',{x:[-8,8,-6,6,-4,4,0],duration:.4,ease:'none'});
+    return;
+  }
+  const btn=document.getElementById('popup-submit');
+  btn.textContent='SUBMITTING...'; btn.disabled=true;
+  const data={timestamp:new Date().toISOString(),name,phone:code+' '+phone,context};
+  try {
+    if(SHEETS_URL){
+      await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    }
+  } catch(e){}
+  // Show success
+  document.getElementById('bookDriveForm').style.display='none';
+  document.querySelector('.popup-note').style.display='none';
+  document.querySelector('.popup-title').style.display='none';
+  document.querySelector('.popup-eyebrow').style.display='none';
+  const successEl=document.getElementById('popup-success-msg');
+  successEl.style.display='block';
+  gsap.from(successEl,{y:20,opacity:0,duration:.6,ease:'power3.out'});
+  setTimeout(closePopup,4000);
+});
+
+// =====================
+// GLITCH
+// =====================
+function triggerGlitch(){
+  const ht=document.querySelector('.hero-title');
+  if(ht){ht.style.textShadow='3px 0 0 rgba(0,170,255,.6),-3px 0 0 rgba(255,0,100,.4)';setTimeout(()=>{ht.style.textShadow='0 0 60px rgba(0,120,255,.3)';},150);}
+  setTimeout(triggerGlitch,5000+Math.random()*8000);
+}
+setTimeout(triggerGlitch,4000);
+
+// =====================
+// HERO MOUSE GLOW
+// =====================
+const heroCar=document.getElementById('hero-car');
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/window.innerWidth)*100,y=(e.clientY/window.innerHeight)*100;
+  if(heroCar)heroCar.style.backgroundImage=`radial-gradient(ellipse 60% 50% at ${x}% ${y}%,rgba(0,120,255,.18) 0%,transparent 70%),radial-gradient(ellipse 80% 60% at 60% 60%,rgba(0,100,200,.12) 0%,transparent 70%),radial-gradient(ellipse 100% 80% at 50% 100%,rgba(0,30,80,.8) 0%,transparent 60%),url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1800&q=80&fit=crop')`;
+});
+
+window.addEventListener('resize',()=>ScrollTrigger.refresh());
+</script>
+
+<!--
+╔═══════════════════════════════════════════════════════════════════╗
+║          GOOGLE APPS SCRIPT — FULL CODE                          ║
+║   1. Go to: https://script.google.com                            ║
+║   2. Create New Project                                          ║
+║   3. Paste this code exactly                                     ║
+║   4. Deploy > New Deployment > Web App                           ║
+║      • Execute as: Me                                            ║
+║      • Who has access: Anyone                                    ║
+║   5. Copy the Web App URL                                        ║
+║   6. Paste it in the SHEETS_URL variable above                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+// ─── GOOGLE APPS SCRIPT CODE ───────────────────────────────────────
+
+const SHEET_NAME = 'APEX Leads';
+
+function doPost(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+
+    // Auto-create sheet and headers if not exists
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      const headers = [
+        'Timestamp',
+        'Name',
+        'Phone Number',
+        'Context',
+        'Status'
+      ];
+      const headerRow = sheet.getRange(1, 1, 1, headers.length);
+      headerRow.setValues([headers]);
+      headerRow.setFontWeight('bold');
+      headerRow.setBackground('#030305');
+      headerRow.setFontColor('#00aaff');
+      sheet.setFrozenRows(1);
+      sheet.setColumnWidth(1, 180);
+      sheet.setColumnWidth(2, 160);
+      sheet.setColumnWidth(3, 160);
+      sheet.setColumnWidth(4, 180);
+      sheet.setColumnWidth(5, 120);
+    }
+
+    // Parse incoming JSON
+    const data = JSON.parse(e.postData.contents);
+
+    // Format timestamp nicely
+    const ts = new Date(data.timestamp);
+    const formatted = Utilities.formatDate(ts, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm:ss');
+
+    // Append row
+    sheet.appendRow([
+      formatted,
+      data.name || '',
+      data.phone || '',
+      data.context || 'Book Drive',
+      'New'
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput('APEX Motors Lead Capture — Active')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+// ─── END APPS SCRIPT ───────────────────────────────────────────────
+-->
+
+<footer class="ankur-credit-footer">Crafted by <strong><a href="https://wa.me/917896011657?text=Hi%20Ankur%21%20I%20saw%20your%20portfolio%20project%20demo%20and%20I%20want%20a%20premium%20website%20like%20this%20for%20my%20business." target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Ankur</a></strong> <span>· Premium Website Concept Demo</span></footer>
+
+</body>
+</html>

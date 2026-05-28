@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Terms & Confirmation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#090b12;
+      --line:rgba(255,255,255,.13);
+      --pink:#ff3d81;
+      --purple:#8b5cf6;
+      --blue:#38bdf8;
+      --gold:#ffd166;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:#f8fafc;
+      font-family:"Anek Latin","Noto Sans Bengali",system-ui,sans-serif;
+      background:
+        radial-gradient(circle at 8% 5%, rgba(255,61,129,.18), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(56,189,248,.14), transparent 24%),
+        linear-gradient(145deg,#070812 0%,#111827 55%,#080812 100%);
+    }
+
+    .glass{
+      background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
+      border:1px solid var(--line);
+      box-shadow:0 24px 70px rgba(0,0,0,.36);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+    }
+
+    .term-card{
+      background:rgba(255,255,255,.062);
+      border:1px solid rgba(255,255,255,.115);
+      transition:.22s ease;
+    }
+
+    .term-card:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,.09);
+      border-color:rgba(255,61,129,.36);
+    }
+
+    .main-btn{
+      background:linear-gradient(135deg,#ff3d81,#8b5cf6 55%,#38bdf8);
+      color:white;
+      box-shadow:0 18px 46px rgba(255,61,129,.26);
+      transition:.22s ease;
+    }
+
+    .main-btn:not(:disabled):hover{
+      transform:translateY(-2px);
+      box-shadow:0 24px 60px rgba(139,92,246,.36);
+    }
+
+    .main-btn:disabled{
+      opacity:.42;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .lang-btn{
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(255,255,255,.07);
+      color:#cbd5e1;
+      transition:.18s ease;
+    }
+
+    .lang-btn.active{
+      background:linear-gradient(135deg,rgba(255,61,129,.34),rgba(139,92,246,.34));
+      color:white;
+      border-color:rgba(255,255,255,.28);
+    }
+
+    .info-dot{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:22px;
+      height:22px;
+      margin-left:6px;
+      border-radius:999px;
+      background:rgba(255,209,102,.16);
+      border:1px solid rgba(255,209,102,.35);
+      color:#ffd166;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      vertical-align:middle;
+    }
+
+    .modal-backdrop{opacity:0;pointer-events:none;transition:.22s ease}
+    .modal-backdrop.active{opacity:1;pointer-events:auto}
+    .modal-box{opacity:0;transform:translateY(18px) scale(.96);transition:.22s ease}
+    .modal-backdrop.active .modal-box{opacity:1;transform:translateY(0) scale(1)}
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(16px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .fade-up{animation:fadeUp .65s ease both}
+  </style>
+</head>
+
+<body>
+  <main class="px-4 py-5 sm:px-6 lg:px-8 lg:py-10">
+    <section class="mx-auto max-w-4xl fade-up">
+
+      <header class="glass rounded-[2rem] p-6 sm:p-8">
+        <p class="inline-flex rounded-full border border-pink-300/25 bg-pink-300/10 px-4 py-2 text-xs font-black uppercase tracking-[.18em] text-pink-100" data-i18n="badge"></p>
+        <h1 class="mt-5 text-3xl font-black leading-tight sm:text-5xl" data-i18n="title"></h1>
+        <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base" data-i18n="subtitle"></p>
+      </header>
+
+      <section class="mt-5 grid gap-4">
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-pink-400/15 px-3 py-1 text-xs font-black text-pink-200">01</span>
+          <h3 class="mt-3 text-lg font-black" data-i18n="term1Title"></h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term1Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-blue-400/15 px-3 py-1 text-xs font-black text-blue-200">02</span>
+          <h3 class="mt-3 text-lg font-black" data-i18n="term2Title"></h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term2Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-yellow-300/15 px-3 py-1 text-xs font-black text-yellow-200">03</span>
+          <h3 class="mt-3 text-lg font-black">
+            <span data-i18n="term3Title"></span>
+            <button class="info-dot" data-popup="hosting" aria-label="More details">?</button>
+          </h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term3Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-green-400/15 px-3 py-1 text-xs font-black text-green-200">04</span>
+          <h3 class="mt-3 text-lg font-black">
+            <span data-i18n="term4Title"></span>
+            <button class="info-dot" data-popup="refund" aria-label="More details">?</button>
+          </h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term4Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-purple-400/15 px-3 py-1 text-xs font-black text-purple-200">05</span>
+          <h3 class="mt-3 text-lg font-black" data-i18n="term5Title"></h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term5Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-black text-white">06</span>
+          <h3 class="mt-3 text-lg font-black">
+            <span data-i18n="term6Title"></span>
+            <button class="info-dot" data-popup="support" aria-label="More details">?</button>
+          </h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term6Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-cyan-400/15 px-3 py-1 text-xs font-black text-cyan-200">07</span>
+          <h3 class="mt-3 text-lg font-black" data-i18n="term7Title"></h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term7Text"></p>
+        </article>
+
+        <article class="term-card rounded-3xl p-5">
+          <span class="rounded-full bg-yellow-300/15 px-3 py-1 text-xs font-black text-yellow-200">08</span>
+          <h3 class="mt-3 text-lg font-black" data-i18n="term8Title"></h3>
+          <p class="mt-2 text-sm leading-7 text-slate-300" data-i18n="term8Text"></p>
+        </article>
+      </section>
+
+      <section class="glass mt-5 rounded-[2rem] p-6 sm:p-8">
+        <h2 class="text-2xl font-black sm:text-3xl" data-i18n="agreeTitle"></h2>
+        <p class="mt-3 text-sm leading-7 text-slate-300 sm:text-base" data-i18n="agreeText"></p>
+
+        <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[.055] p-4">
+          <input id="agreeCheck" type="checkbox" class="mt-1 h-5 w-5 accent-pink-500">
+          <span class="text-sm font-extrabold leading-6 text-slate-200" data-i18n="checkboxText"></span>
+        </label>
+
+        <button id="agreeBtn" disabled class="main-btn mt-5 w-full rounded-2xl px-8 py-4 text-base font-black sm:text-lg" data-i18n="buttonText"></button>
+        <p class="mt-4 text-center text-xs leading-5 text-slate-500" data-i18n="buttonHint"></p>
+      </section>
+
+      <section class="mt-5 rounded-[2rem] border border-white/10 bg-white/[.045] p-5">
+        <p class="mb-3 text-center text-xs font-black uppercase tracking-[.18em] text-slate-400" data-i18n="languageLabel"></p>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button class="lang-btn rounded-full px-4 py-2 text-sm font-extrabold" data-lang-btn="English">English</button>
+          <button class="lang-btn rounded-full px-4 py-2 text-sm font-extrabold" data-lang-btn="Hinglish">Hinglish</button>
+          <button class="lang-btn rounded-full px-4 py-2 text-sm font-extrabold" data-lang-btn="Assamese">Assamese</button>
+        </div>
+      </section>
+
+      <footer class="py-7 text-center text-xs text-slate-500">
+        © <span id="year"></span> Website Terms & Confirmation
+      </footer>
+    </section>
+  </main>
+
+  <div id="modal" class="modal-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-4 sm:items-center">
+    <div class="modal-box glass w-full max-w-lg rounded-[2rem] p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-black uppercase tracking-[.18em] text-yellow-200" data-i18n="popupLabel"></p>
+          <h3 id="modalTitle" class="mt-2 text-2xl font-black text-white"></h3>
+        </div>
+        <button id="closeModal" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xl font-black text-white">×</button>
+      </div>
+      <p id="modalText" class="mt-4 text-sm leading-7 text-slate-300"></p>
+      <button id="okModal" class="mt-6 w-full rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950" data-i18n="popupOk"></button>
+    </div>
+  </div>
+
+  <script>
+    const developerWhatsAppNumber = "917896011657";
+
+    const translations = {
+      English: {
+        badge: "Website Confirmation",
+        title: "Terms & Conditions",
+        subtitle: "Please read and confirm these terms for the website service.",
+        term1Title: "Demo Approval",
+        term1Text: "A free live demo was shown for your business. After you liked the demo and asked to continue, the full website was made live.",
+        term2Title: "No Advance Payment",
+        term2Text: "No advance payment was taken before making the website live. Service confirmation is being taken after the website is live.",
+        term3Title: "Free / Low-Cost Live Setup",
+        term3Text: "Currently the website is live on a free/low-cost setup so the starting cost stays low. Tap the ? icon for future upgrade details.",
+        term4Title: "Response & Refund Condition",
+        term4Text: "If there is business response within the agreed time period, the website service will be considered valid. If no response comes, the refund condition may apply.",
+        term5Title: "Continue Website Service",
+        term5Text: "If customer response comes and you want to continue the website, then payment, service, and maintenance will be discussed mutually.",
+        term6Title: "Maintenance & Extra Work",
+        term6Text: "Basic updates may be included in support, but major design changes, new pages, new features, or extra work will require separate discussion.",
+        term7Title: "Business Details",
+        term7Text: "Business name, logo, photos, address, contact number, services, prices, and offers were provided by the client. Accuracy of these details is the client’s responsibility.",
+        term8Title: "Final Access",
+        term8Text: "Final access or full control of the website will be provided after the agreed payment/discussion is completed.",
+        agreeTitle: "Agreement Confirmation",
+        agreeText: "I agree to these Terms & Conditions, and I also agree to the deal/discussion finalized between us for this website service.",
+        checkboxText: "I agree to the Terms & Conditions and the deal/discussion finalized for this website service.",
+        buttonText: "Agree on WhatsApp",
+        buttonHint: "After clicking, WhatsApp will open with this page link and agreement message.",
+        languageLabel: "Change language",
+        popupLabel: "Important Detail",
+        popupOk: "Okay, Understood",
+        hostingTitle: "Future Domain / Hosting Upgrade",
+        hostingText: "The website is currently live on a free/low-cost setup to keep the starting cost low. In the future, if traffic/visitors increase, a custom domain is needed, paid hosting is required, or speed/security/professional email/paid tool is needed, the full cost will be paid by the client after discussion.",
+        refundTitle: "Refund Condition",
+        refundText: "If no appointment, inquiry, call, WhatsApp message, traffic, customer response, or business interest comes within the agreed time period, refund may be given as discussed. If real response/activity comes, the website service will be considered valid.",
+        supportTitle: "Maintenance & Extra Work",
+        supportText: "Maintenance can include text updates, photo updates, offer changes, contact updates, and basic support. Major design changes, new pages, booking systems, extra animations, or special features will need separate discussion.",
+        whatsappMsg: "I Agree\n\nI agree to these Terms & Conditions, and I also agree to the deal/discussion finalized between us for this website service.\n\nMoney/payment and future service will be discussed mutually as written on the terms page."
+      },
+
+      Hinglish: {
+        badge: "Website Confirmation",
+        title: "Terms & Conditions",
+        subtitle: "Please website service ke liye ye terms read karke confirm karein.",
+        term1Title: "Demo Approval",
+        term1Text: "Aapke business ke liye free live demo dikhaya gaya tha. Demo pasand aane ke baad, aapke kehne par full website live ki gayi hai.",
+        term2Title: "No Advance Payment",
+        term2Text: "Website live karne se pehle koi advance payment nahi liya gaya hai. Service confirmation website live hone ke baad liya ja raha hai.",
+        term3Title: "Free / Low-Cost Live Setup",
+        term3Text: "Currently website free/low-cost setup par live ki gayi hai taaki starting cost kam rahe. Future upgrade details ke liye ? icon par tap karein.",
+        term4Title: "Response & Refund Condition",
+        term4Text: "Agreed time period me business response aata hai to website service valid mani jayegi. Response nahi aane par refund condition apply ho sakti hai.",
+        term5Title: "Website Continue Karna",
+        term5Text: "Agar website se customer response aata hai aur aap website continue karna chahte hain, to payment, service aur maintenance mutual discussion ke according decide hoga.",
+        term6Title: "Maintenance & Extra Work",
+        term6Text: "Basic updates support me aa sakte hain, lekin major design change, new page, new feature ya extra work ke liye separate discussion hoga.",
+        term7Title: "Business Details",
+        term7Text: "Business name, logo, photos, address, contact number, services, prices aur offers client ne provide kiye hain. In details ki accuracy client ki responsibility hogi.",
+        term8Title: "Final Access",
+        term8Text: "Website ka final access/full control agreed payment/discussion complete hone ke baad diya jayega.",
+        agreeTitle: "Agreement Confirmation",
+        agreeText: "Main in Terms & Conditions se agree karta/karti hoon, aur is website service ke liye hamare beech deal/discussion me hui baat se bhi agree karta/karti hoon.",
+        checkboxText: "Main Terms & Conditions aur website service ke liye hui deal/discussion se agree karta/karti hoon.",
+        buttonText: "WhatsApp par Agree karein",
+        buttonHint: "Click karne ke baad WhatsApp open hoga aur page link agreement message me add hoga.",
+        languageLabel: "Language change karein",
+        popupLabel: "Important Detail",
+        popupOk: "Okay, Samajh Gaya",
+        hostingTitle: "Future Domain / Hosting Upgrade",
+        hostingText: "Abhi website ko free/low-cost setup par live kiya gaya hai taaki starting cost kam rahe. Future me agar traffic/visitors zyada aate hain, custom domain chahiye hota hai, paid hosting lagti hai, speed/security/professional email/paid tool ki need hoti hai, to uska full cost client ko discussion ke baad dena hoga.",
+        refundTitle: "Refund Condition",
+        refundText: "Agar agreed time period me appointment, inquiry, call, WhatsApp message, traffic, customer response ya business interest nahi aata, to refund discussion ke according diya ja sakta hai. Agar real response/activity aati hai, to website service valid mani jayegi.",
+        supportTitle: "Maintenance & Extra Work",
+        supportText: "Maintenance me text update, photo update, offer change, contact update aur basic support include ho sakta hai. Major design change, new page, booking system, extra animation ya special feature ke liye separate discussion hoga.",
+        whatsappMsg: "I Agree\n\nMain in Terms & Conditions se agree karta/karti hoon, aur is website service ke liye hamare beech deal/discussion me hui baat se bhi agree karta/karti hoon.\n\nMoney/payment aur future service terms page ke according mutual discussion se decide hoga."
+      },
+
+      Assamese: {
+        badge: "Website Confirmation",
+        title: "Terms & Conditions",
+        subtitle: "অনুগ্ৰহ কৰি website service ৰ বাবে এই terms read কৰি confirm কৰক।",
+        term1Title: "Demo Approval",
+        term1Text: "আপোনাৰ business ৰ বাবে free live demo দেখুওৱা হৈছিল। Demo ভাল লগাৰ পিছত, আপোনাৰ কথামতে full website live কৰা হৈছে।",
+        term2Title: "No Advance Payment",
+        term2Text: "Website live কৰাৰ আগতে কোনো advance payment লোৱা হোৱা নাই। Website live হোৱাৰ পিছত service confirmation লোৱা হৈছে।",
+        term3Title: "Free / Low-Cost Live Setup",
+        term3Text: "বৰ্তমান website free/low-cost setup ত live কৰা হৈছে যাতে starting cost কম থাকে। Future upgrade details জানিবলৈ ? icon ত tap কৰক।",
+        term4Title: "Response & Refund Condition",
+        term4Text: "Agreed time period ভিতৰত business response আহিলে website service valid ধৰা হ’ব। Response নাহিলে refund condition apply হ’ব পাৰে।",
+        term5Title: "Website Continue কৰা",
+        term5Text: "Website ৰ পৰা customer response আহিলে আৰু আপুনি website continue কৰিব বিচাৰিলে payment, service আৰু maintenance mutual discussion অনুসৰি decide হ’ব।",
+        term6Title: "Maintenance & Extra Work",
+        term6Text: "Basic updates support ত থাকিব পাৰে, কিন্তু major design change, new page, new feature বা extra work ৰ বাবে separate discussion হ’ব।",
+        term7Title: "Business Details",
+        term7Text: "Business name, logo, photos, address, contact number, services, prices আৰু offers client এ provide কৰিছে। এই details ৰ accuracy client ৰ responsibility হ’ব।",
+        term8Title: "Final Access",
+        term8Text: "Website ৰ final access/full control agreed payment/discussion complete হোৱাৰ পিছত দিয়া হ’ব।",
+        agreeTitle: "Agreement Confirmation",
+        agreeText: "মই এই Terms & Conditions ৰ সৈতে agree কৰিছোঁ, আৰু এই website service ৰ বাবে আমাৰ মাজত হোৱা deal/discussion ৰ কথাবোৰৰ সৈতেও agree কৰিছোঁ।",
+        checkboxText: "মই Terms & Conditions আৰু website service ৰ বাবে হোৱা deal/discussion ৰ সৈতে agree কৰিছোঁ।",
+        buttonText: "WhatsApp ত Agree কৰক",
+        buttonHint: "Click কৰাৰ পিছত WhatsApp open হ’ব আৰু page link agreement message ত add হ’ব।",
+        languageLabel: "Language change কৰক",
+        popupLabel: "Important Detail",
+        popupOk: "Okay, বুজিলোঁ",
+        hostingTitle: "Future Domain / Hosting Upgrade",
+        hostingText: "বৰ্তমান website free/low-cost setup ত live কৰা হৈছে যাতে starting cost কম থাকে। Future ত যদি traffic/visitors বেছি হয়, custom domain লাগে, paid hosting লাগে, speed/security/professional email/paid tool লাগে, তেন্তে তাৰ full cost client এ discussion ৰ পিছত দিব লাগিব।",
+        refundTitle: "Refund Condition",
+        refundText: "Agreed time period ভিতৰত appointment, inquiry, call, WhatsApp message, traffic, customer response বা business interest নাহিলে refund discussion অনুসৰি দিয়া হ’ব পাৰে। Real response/activity আহিলে website service valid ধৰা হ’ব।",
+        supportTitle: "Maintenance & Extra Work",
+        supportText: "Maintenance ত text update, photo update, offer change, contact update আৰু basic support থাকিব পাৰে। Major design change, new page, booking system, extra animation বা special feature ৰ বাবে separate discussion হ’ব।",
+        whatsappMsg: "I Agree\n\nমই এই Terms & Conditions ৰ সৈতে agree কৰিছোঁ, আৰু এই website service ৰ বাবে আমাৰ মাজত হোৱা deal/discussion ৰ কথাবোৰৰ সৈতেও agree কৰিছোঁ।\n\nMoney/payment আৰু future service terms page অনুসৰি mutual discussion ত decide হ’ব।"
+      }
+    };
+
+    const validLangs = ["English", "Hinglish", "Assamese"];
+    const params = new URLSearchParams(window.location.search);
+    let currentLang = params.get("lan") || params.get("lang") || localStorage.getItem("termsLang") || "Hinglish";
+    currentLang = validLangs.find(l => l.toLowerCase() === String(currentLang).toLowerCase()) || "Hinglish";
+
+    const yearEl = document.getElementById("year");
+    const agreeCheck = document.getElementById("agreeCheck");
+    const agreeBtn = document.getElementById("agreeBtn");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const closeModal = document.getElementById("closeModal");
+    const okModal = document.getElementById("okModal");
+
+    yearEl.textContent = new Date().getFullYear();
+
+    function setLanguage(lang, updateUrl = true){
+      currentLang = lang;
+      localStorage.setItem("termsLang", lang);
+      document.documentElement.lang = lang === "Assamese" ? "as" : "en";
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        if(translations[lang][key]) el.textContent = translations[lang][key];
+      });
+
+      document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.langBtn === lang);
+      });
+
+      if(updateUrl){
+        const url = new URL(window.location.href);
+        url.searchParams.set("lan", lang);
+        window.history.replaceState({}, "", url);
+      }
+    }
+
+    setLanguage(currentLang, false);
+
+    document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+      btn.addEventListener("click", () => setLanguage(btn.dataset.langBtn, true));
+    });
+
+    agreeCheck.addEventListener("change", () => {
+      agreeBtn.disabled = !agreeCheck.checked;
+    });
+
+    document.querySelectorAll(".info-dot").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const t = translations[currentLang];
+        const type = btn.dataset.popup;
+
+        if(type === "hosting"){
+          modalTitle.textContent = t.hostingTitle;
+          modalText.textContent = t.hostingText;
+        }
+
+        if(type === "refund"){
+          modalTitle.textContent = t.refundTitle;
+          modalText.textContent = t.refundText;
+        }
+
+        if(type === "support"){
+          modalTitle.textContent = t.supportTitle;
+          modalText.textContent = t.supportText;
+        }
+
+        modal.classList.add("active");
+      });
+    });
+
+    function hideModal(){ modal.classList.remove("active"); }
+    closeModal.addEventListener("click", hideModal);
+    okModal.addEventListener("click", hideModal);
+    modal.addEventListener("click", e => { if(e.target === modal) hideModal(); });
+    document.addEventListener("keydown", e => { if(e.key === "Escape") hideModal(); });
+
+    agreeBtn.addEventListener("click", () => {
+      if(!agreeCheck.checked) return;
+
+      const pageLink = window.location.href && window.location.href !== "about:blank" ? window.location.href : "Terms page link";
+      const today = new Date().toLocaleDateString("en-IN");
+      const t = translations[currentLang];
+
+      const message =
+`${t.whatsappMsg}
+
+Terms Page Link: ${pageLink}
+Language: ${currentLang}
+Date: ${today}`;
+
+      const whatsappUrl = `https://wa.me/${developerWhatsAppNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
+    });
+  </script>
+</body>
+</html>

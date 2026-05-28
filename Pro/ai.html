@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Tools Website Demo — Student Platform by Ankur</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{poppins:['Poppins','sans-serif'],jakarta:['Plus Jakarta Sans','sans-serif']},
+  colors:{
+    brand:{DEFAULT:'#1a1f36',50:'#f0f2ff',100:'#dde2ff',200:'#c4cbff',300:'#a0acff',400:'#7a88ff',500:'#5c6dff',600:'#4353f5',700:'#3541e0',800:'#2c35b5',900:'#1a1f36'},
+    accent:{DEFAULT:'#f0c040',light:'#fde68a',dark:'#d4a017'},
+    ink:{DEFAULT:'#1a1f36',muted:'#6b7280',light:'#9ca3af'}
+  }
+}}}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#f7f8fc;color:#1a1f36;margin:0;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#c4cbff;border-radius:99px}
+
+/* ══ Animated header ══ */
+.hero-bg{background:linear-gradient(135deg,#0f1429 0%,#1a1f36 30%,#2c35b5 65%,#3541e0 100%);position:relative;overflow:hidden}
+.hero-bg::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 10%,rgba(92,109,255,.5) 0%,transparent 55%),radial-gradient(ellipse at 5% 80%,rgba(240,192,64,.25) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(53,65,224,.3) 0%,transparent 70%);
+  animation:heroPulse 6s ease-in-out infinite alternate}
+@keyframes heroPulse{0%{opacity:.7;transform:scale(1)}100%{opacity:1;transform:scale(1.06)}}
+.hero-orb{position:absolute;border-radius:50%;pointer-events:none;animation:orbFloat 8s ease-in-out infinite alternate}
+@keyframes orbFloat{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-18px) scale(1.08)}}
+.noise::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");opacity:.4}
+
+/* ══ Cards ══ */
+.tool-card{transition:transform .25s ease,box-shadow .25s ease}
+.tool-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(26,31,54,.13)}
+
+/* ══ Badges ══ */
+.premium-badge{background:linear-gradient(135deg,#5c6dff,#3541e0);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.5px}
+.coming-badge{background:linear-gradient(135deg,#fde68a,#f0c040);color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.5px}
+
+/* ══ Locked guard ══ */
+#appInteractGuard{display:none;position:fixed;inset:0;z-index:25;cursor:pointer}
+#appInteractGuard.active{display:block}
+
+/* ══ Bottom nav ══ */
+.bottom-nav-wrap{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;justify-content:center;padding:0 16px 20px;pointer-events:none}
+.bottom-nav{pointer-events:all;background:rgba(255,255,255,.97);backdrop-filter:blur(28px);border-radius:26px;border:1px solid rgba(92,109,255,.1);box-shadow:0 10px 40px rgba(26,31,54,.15),0 2px 12px rgba(26,31,54,.06);padding:8px 16px;display:flex;gap:4px;max-width:380px;width:100%}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 7px;border-radius:18px;border:none;background:transparent;cursor:pointer;transition:background .2s,color .2s,transform .18s,box-shadow .2s;color:#9ca3af;font-family:'Poppins',sans-serif;font-size:10px;font-weight:500;position:relative}
+.nav-btn:hover:not(.active){background:#f5f5ff;color:#5c6dff;transform:translateY(-2px)}
+.nav-btn.active{background:linear-gradient(135deg,#eef0f8,#e8ebff);color:#3541e0;box-shadow:inset 0 0 0 1.5px rgba(92,109,255,.25)}
+.nav-icon-wrap{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .2s,box-shadow .2s}
+.nav-btn.active .nav-icon-wrap{background:linear-gradient(135deg,#5c6dff,#3541e0);box-shadow:0 4px 12px rgba(92,109,255,.4)}
+.nav-btn.active .nav-icon-wrap i{color:#fff}
+.nav-btn:hover:not(.active) .nav-icon-wrap{background:#f0f2ff}
+.nav-btn i{font-size:16px;transition:color .2s}
+
+/* ══ Popups ══ */
+.popup-overlay{position:fixed;inset:0;background:rgba(26,31,54,.6);backdrop-filter:blur(8px);z-index:80;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.popup-overlay.show{opacity:1;pointer-events:all}
+.popup-sheet{background:#fff;width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:28px 24px 44px;transform:translateY(40px);transition:transform .35s cubic-bezier(.22,.68,0,1.2);max-height:92vh;overflow-y:auto}
+.popup-overlay.show .popup-sheet{transform:translateY(0)}
+.tool-popup{position:fixed;inset:0;background:#fff;z-index:90;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.68,0,1.2);display:flex;flex-direction:column}
+.tool-popup.show{transform:translateY(0)}
+.profile-modal-overlay{position:fixed;inset:0;background:rgba(26,31,54,.6);backdrop-filter:blur(8px);z-index:85;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.profile-modal-overlay.show{opacity:1;pointer-events:all}
+.profile-modal{background:#fff;width:100%;max-width:400px;border-radius:28px;padding:28px 24px 32px;transform:translateY(20px) scale(.97);transition:transform .35s cubic-bezier(.22,.68,0,1.2);max-height:90vh;overflow-y:auto}
+.profile-modal-overlay.show .profile-modal{transform:translateY(0) scale(1)}
+
+/* ══ Center modal (premium access + gift box) ══ */
+.center-modal-overlay{position:fixed;inset:0;background:rgba(26,31,54,.65);backdrop-filter:blur(10px);z-index:110;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.center-modal-overlay.show{opacity:1;pointer-events:all}
+.center-modal-box{background:#fff;width:100%;max-width:400px;border-radius:28px;padding:28px 24px 32px;transform:scale(.95) translateY(10px);transition:transform .35s cubic-bezier(.22,.68,0,1.2);max-height:90vh;overflow-y:auto}
+.center-modal-overlay.show .center-modal-box{transform:scale(1) translateY(0)}
+
+/* ══ Chat bubbles ══ */
+.chat-bubble{background:#eef0f8;border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:14px;line-height:1.5;max-width:88%;animation:bubbleIn .3s ease}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+
+/* ══ Fields ══ */
+.field{width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;font-family:'Poppins',sans-serif;font-size:14px;outline:none;transition:border .2s,box-shadow .2s;background:#fff;color:#1a1f36}
+.field:focus{border-color:#5c6dff;box-shadow:0 0 0 3px rgba(92,109,255,.12)}
+/* Read-only phone fields — greyed out, locked appearance */
+.field-readonly{background:#f5f5f5;color:#6b7280;cursor:not-allowed;border-color:#e5e7eb}
+.field-readonly:focus{border-color:#e5e7eb;box-shadow:none}
+.pill-btn{padding:9px 18px;border-radius:99px;border:1.5px solid #e5e7eb;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:#fff;color:#6b7280}
+.pill-btn.selected{background:#5c6dff;border-color:#5c6dff;color:#fff}
+.btn-primary{background:linear-gradient(135deg,#5c6dff,#3541e0);color:#fff;border:none;border-radius:14px;padding:14px 24px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:opacity .2s,transform .15s;box-shadow:0 4px 16px rgba(92,109,255,.35)}
+.btn-primary:hover{opacity:.92}.btn-primary:active{transform:scale(.98)}.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:#f7f8fc;color:#1a1f36;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 24px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:background .2s}
+.btn-secondary:hover{background:#eef0f8}
+.like-btn{transition:transform .2s}.like-btn:active{transform:scale(1.3)}
+
+/* ══ Filter chips ══ */
+.filter-chip{padding:7px 16px;border-radius:99px;border:1.5px solid rgba(255,255,255,.25);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .22s;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);white-space:nowrap}
+.filter-chip.active{background:#fff;color:#3541e0;border-color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.search-wrap{position:relative}
+.search-wrap>i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.5);font-size:13px}
+.search-wrap input{padding-left:40px}
+.home-only.hidden-section{display:none}
+
+/* ══ Tab pages ══ */
+.tab-page{display:none;animation:pageIn .3s ease}.tab-page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.lb-row{transition:background .2s}.lb-row:hover{background:#f0f2ff}
+.wtab-btn{flex:1;padding:9px 0;border-radius:12px;border:none;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .22s;background:transparent;color:#9ca3af}
+.wtab-btn.active{background:#5c6dff;color:#fff;box-shadow:0 4px 12px rgba(92,109,255,.3)}
+
+.ref-card{background:linear-gradient(135deg,#0f1429,#2c35b5)}
+.level-bar-track{background:rgba(255,255,255,.2);border-radius:99px;height:6px;overflow:hidden}
+.level-bar-fill{background:linear-gradient(90deg,#f0c040,#fff);border-radius:99px;height:100%;transition:width .6s ease}
+.rank-badge{background:linear-gradient(135deg,#f0c040,#d4a017);color:#1a1f36;font-weight:800}
+.stat-pill{background:rgba(255,255,255,.12);border-radius:12px;padding:10px 12px}
+.avatar-ring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#5c6dff,#f0c040);padding:3px;cursor:pointer}
+.avatar-inner{width:100%;height:100%;border-radius:50%;background:#eef0f8;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar-inner img{width:100%;height:100%;object-fit:cover}
+
+.fade-up{animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.10s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.20s}
+
+/* ══ Toast ══ */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:#1a1f36;color:#fff;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ Logo ══ */
+.logo-wrap{display:inline-flex;align-items:center;gap:9px}
+/* Replace logo URL here if needed */
+.logo-img-box{width:36px;height:36px;border-radius:10px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 10px rgba(92,109,255,.4)}
+.logo-img-box img{width:100%;height:100%;object-fit:cover;display:block}
+.logo-text-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.2px;background:linear-gradient(90deg,#fff 40%,#fde68a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.logo-text-sub{background:linear-gradient(90deg,#c4cbff,#a0acff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-text-main-dark{background:linear-gradient(90deg,#1a1f36 40%,#3541e0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-text-sub-dark{background:linear-gradient(90deg,#5c6dff,#3541e0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-rank{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:4px 10px;font-size:11px;font-weight:700;color:#fde68a;backdrop-filter:blur(6px);cursor:default}
+
+/* ══ Top-bar right cluster — plan badge overlays avatar ══ */
+.topbar-right{position:relative;display:flex;align-items:center;gap:8px}
+/* Plan badge: absolute position over avatar bottom-left, high z-index */
+.header-plan-badge{
+  position:absolute;
+  bottom:-6px;left:50%;transform:translateX(-50%);
+  border-radius:99px;padding:2px 8px;font-size:9px;font-weight:800;
+  cursor:pointer;border:2px solid #fff;white-space:nowrap;z-index:10;
+  transition:opacity .2s;line-height:1.4;
+}
+.header-plan-badge.hidden{display:none}
+.header-plan-badge.is-premium{background:linear-gradient(135deg,#f0c040,#d4a017);color:#1a1f36}
+.header-plan-badge.is-basic{background:linear-gradient(135deg,#5c6dff,#3541e0);color:#fff;box-shadow:0 1px 6px rgba(92,109,255,.5)}
+.header-plan-badge:hover{opacity:.85}
+/* Wrapper for avatar + overlaid badge */
+.avatar-plan-wrap{position:relative;flex-shrink:0}
+
+/* ══ LIVE NOTIFICATION ══ */
+#liveNotif{
+  position:fixed;top:72px;left:50%;
+  transform:translateX(-50%) translateY(-140%);
+  z-index:200;max-width:340px;width:calc(100% - 32px);
+  background:rgba(15,20,41,.97);backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.1);border-radius:16px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.35);
+  transition:transform .4s cubic-bezier(.22,.68,0,1.2),opacity .4s ease;
+  opacity:0;pointer-events:none;
+}
+#liveNotif.show{transform:translateX(-50%) translateY(0);opacity:1}
+.notif-avatar{width:36px;height:36px;border-radius:99px;background:linear-gradient(135deg,#5c6dff,#f0c040);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.notif-text{font-size:12px;line-height:1.45;color:#e5e7eb;flex:1}
+.notif-text strong{color:#fde68a}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ══ Key validation messages ══ */
+.key-error{color:#ef4444;font-size:12px;font-weight:500;margin-top:6px;display:none}
+.key-success{color:#22c55e;font-size:12px;font-weight:500;margin-top:6px;display:none}
+
+/* ══ Gift box animation ══ */
+@keyframes giftBounce{0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.12) rotate(-8deg)}75%{transform:scale(1.12) rotate(8deg)}}
+.gift-anim{animation:giftBounce 0.8s ease-in-out 3;font-size:52px;display:block;text-align:center;margin:0 auto 16px;cursor:default}
+
+/* ══ Phone prefix row ══ */
+.phone-prefix-row{display:flex;gap:8px;align-items:center}
+.phone-prefix{background:#f0f2ff;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:#3541e0;white-space:nowrap;flex-shrink:0}
+</style>
+
+<style id="ankur-project-credit-style">
+  .ankur-credit-footer{position:relative;z-index:10;text-align:center;padding:18px 14px;font-family:Arial, sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:#0b0b0f;color:rgba(255,255,255,.72);border-top:1px solid rgba(255,255,255,.12)}
+  .ankur-credit-footer strong{color:#f4c95d;font-weight:700}.ankur-credit-footer span{opacity:.72}</style>
+
+</head>
+<body>
+
+<!-- AUDIO -->
+<audio id="sndNotif" preload="auto" src="https://cdn.freesound.org/previews/341/341695_5858296-lq.mp3" style="display:none"></audio>
+<audio id="sndClick" preload="auto" src="https://cdn.freesound.org/previews/220/220206_4100837-lq.mp3" style="display:none"></audio>
+
+<div id="toast"></div>
+
+<!-- LIVE NOTIFICATION -->
+<div id="liveNotif" aria-live="polite">
+  <div class="notif-avatar" id="notifAvatar">A</div>
+  <div class="notif-text"   id="notifText"></div>
+  <div class="notif-dot"></div>
+</div>
+
+<!-- INTERACTION GUARD (login-lock without blur) -->
+<div id="appInteractGuard" onclick="openLogin()"></div>
+
+<!-- ════════════════════════════════════════════
+     LOGIN OVERLAY
+════════════════════════════════════════════ -->
+<div id="loginOverlay" class="popup-overlay" style="z-index:100">
+  <div class="popup-sheet">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="logo-wrap">
+        <!-- Replace logo URL here if needed -->
+        <div class="logo-img-box">
+          <img src="" alt="AI" onerror="this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,#5c6dff,#f0c040)'"/>
+        </div>
+        <div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;line-height:1">
+            <span class="logo-text-main-dark">Study</span><span class="logo-text-sub-dark">AI</span>
+          </div>
+          <p style="font-size:10px;color:#6b7280;font-weight:500;margin-top:2px">Login to Access Premium Tools</p>
+        </div>
+      </div>
+    </div>
+    <div id="chatMessages" class="flex flex-col gap-3 mb-4"></div>
+    <div id="loginInputArea" class="mt-2"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PREMIUM ACCESS POPUP
+     Triggered by URL: ?pre=yes&key=ACCESSKEY
+     Phone: auto-filled + readonly from localStorage
+     Key:   auto-filled if in URL, else editable
+════════════════════════════════════════════ -->
+<div id="premiumAccessModal" class="center-modal-overlay">
+  <div class="center-modal-box">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="font-bold text-brand text-lg">Activate Premium</h3>
+        <p class="text-xs text-ink-muted mt-0.5" id="premiumPlanLabel">Enter your access key</p>
+      </div>
+      <button onclick="closePremiumModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-ink-muted hover:bg-gray-200 transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Plan info card -->
+    <div class="bg-gradient-to-r from-brand-50 to-blue-50 rounded-2xl p-4 mb-5 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-brand flex items-center justify-center flex-shrink-0">
+        <i class="fa-solid fa-crown text-accent"></i>
+      </div>
+      <div>
+        <p class="font-semibold text-brand text-sm" id="premiumPlanName">Premium Plan</p>
+        <p class="text-xs text-ink-muted" id="premiumPlanDuration">Loading...</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <!-- Phone: always shows +91 prefix, readonly if saved -->
+      <div>
+        <label class="text-xs font-semibold text-brand block mb-1.5">Phone Number</label>
+        <div class="phone-prefix-row">
+          <span class="phone-prefix">+91</span>
+          <input id="premiumPhone" type="tel" class="field flex-1" placeholder="10-digit number" maxlength="10"/>
+        </div>
+        <p id="premiumPhoneHint" class="text-xs text-ink-muted mt-1" style="display:none">Auto-filled from your account</p>
+      </div>
+      <!-- Access key -->
+      <div>
+        <label class="text-xs font-semibold text-brand block mb-1.5">Access Key</label>
+        <input id="premiumKey" type="text" class="field" placeholder="Paste your access key here"/>
+        <p class="key-error"   id="keyError">Wrong Access Key. Please check and try again.</p>
+        <p class="key-success" id="keySuccess">Access activated! Premium unlocked.</p>
+      </div>
+    </div>
+
+    <button onclick="validatePremiumKey()" class="btn-primary mt-5">
+      <i class="fa-solid fa-unlock mr-2"></i>Activate Premium
+    </button>
+
+    <!-- "I Do Not Have Access" → opens purchase link -->
+    <button onclick="playSoundClick();window.open(PREMIUM_PURCHASE_URL,'_blank')"
+      class="w-full text-ink-muted text-sm font-medium mt-3 py-2 hover:text-brand transition">
+      I Do Not Have Access — Get Premium
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     GIFT BOX POPUP
+     Opens on clicking the gift icon in referral section
+     Phone: readonly from localStorage
+     Code input: editable — validated against referral code formula
+════════════════════════════════════════════ -->
+<div id="giftModal" class="center-modal-overlay">
+  <div class="center-modal-box">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-brand text-lg">Redeem Gift</h3>
+      <button onclick="closeGiftModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-ink-muted hover:bg-gray-200 transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Animated gift box -->
+    <span class="gift-anim" id="giftBoxIcon">🎁</span>
+    <p class="text-center text-ink-muted text-sm mb-5">Enter your referral reward code to unlock points and level up!</p>
+
+    <div class="flex flex-col gap-4">
+      <!-- Phone: readonly from localStorage, +91 prefix -->
+      <div>
+        <label class="text-xs font-semibold text-brand block mb-1.5">Your Phone</label>
+        <div class="phone-prefix-row">
+          <span class="phone-prefix">+91</span>
+          <input id="giftPhone" type="tel" class="field field-readonly flex-1" readonly placeholder="—"/>
+        </div>
+      </div>
+      <!-- Referral code -->
+      <div>
+        <label class="text-xs font-semibold text-brand block mb-1.5">Referral Code</label>
+        <input id="giftCode" type="text" class="field" placeholder="Enter your code here"
+          style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+        <p class="key-error"   id="giftError">Invalid Code. Please check and try again.</p>
+        <p class="key-success" id="giftSuccess">Code accepted! Referral added.</p>
+      </div>
+    </div>
+
+    <button onclick="validateGiftCode()" class="btn-primary mt-5">
+      <i class="fa-solid fa-gift mr-2"></i>Redeem Code
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PROFILE POPUP
+════════════════════════════════════════════ -->
+<div id="profileModal" class="profile-modal-overlay">
+  <div class="profile-modal">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-bold text-brand text-lg">My Profile</h3>
+      <button onclick="closeProfile()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-ink-muted hover:bg-gray-200 transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+    <div class="flex flex-col items-center mb-5">
+      <div class="avatar-ring" onclick="triggerAvatarUpload()" title="Tap to change photo">
+        <div class="avatar-inner" id="profileAvatar">
+          <span id="profileAvatarInitial" style="font-size:28px;font-weight:700;color:#3541e0"></span>
+        </div>
+      </div>
+      <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)"/>
+      <p class="text-xs text-ink-muted mt-2">Tap to change photo</p>
+      <div class="rank-badge rounded-xl px-4 py-2 mt-3 text-center">
+        <p class="text-xs font-semibold opacity-70">Stage Rank</p>
+        <p class="text-base font-black leading-none" id="profileRankDisplay">#—</p>
+      </div>
+      <div id="profilePremiumStatus" class="mt-2 px-4 py-1.5 rounded-xl text-xs font-semibold text-center" style="background:#f0f2ff;color:#3541e0"></div>
+    </div>
+    <div id="profileViewMode">
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-ink-muted font-medium">Name</p><p class="font-semibold text-brand text-sm mt-0.5 truncate" id="pv_name">—</p></div>
+        <div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-ink-muted font-medium">Phone</p><p class="font-semibold text-brand text-sm mt-0.5" id="pv_phone">—</p></div>
+        <div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-ink-muted font-medium">Class</p><p class="font-semibold text-brand text-sm mt-0.5" id="pv_cls">—</p></div>
+        <div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-ink-muted font-medium">Board</p><p class="font-semibold text-brand text-sm mt-0.5 truncate" id="pv_board">—</p></div>
+        <div class="bg-gray-50 rounded-xl p-3 col-span-2"><p class="text-xs text-ink-muted font-medium">Stream</p><p class="font-semibold text-brand text-sm mt-0.5" id="pv_stream">—</p></div>
+      </div>
+      <button onclick="showProfileEdit()" class="w-full border border-brand-200 text-brand font-semibold py-3 rounded-2xl text-sm hover:bg-brand-50 transition mb-2">
+        <i class="fa-solid fa-pen-to-square mr-2 text-brand-500"></i>Edit Details
+      </button>
+      <!-- Logout button is always visible in profile -->
+      <button onclick="playSoundClick();logoutUser()" class="w-full bg-red-50 text-red-600 font-semibold py-3 rounded-2xl text-sm hover:bg-red-100 transition">
+        <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+      </button>
+    </div>
+    <div id="profileEditMode" class="hidden">
+      <div class="flex flex-col gap-3 mb-4">
+        <div><label class="text-xs font-semibold text-brand block mb-1.5">Name</label><input id="pe_name" type="text" class="field" placeholder="Your name"/></div>
+        <div><label class="text-xs font-semibold text-brand block mb-1.5">Class</label>
+          <select id="pe_cls" class="field"><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>12+</option></select>
+        </div>
+        <div><label class="text-xs font-semibold text-brand block mb-1.5">Stream</label>
+          <select id="pe_stream" class="field"><option>PCM</option><option>PCB</option><option>Commerce</option><option>Arts</option><option>General</option></select>
+        </div>
+        <div><label class="text-xs font-semibold text-brand block mb-1.5">Board</label>
+          <select id="pe_board" class="field" onchange="handleProfileBoardChange()">
+            <option>CBSE</option><option>ICSE</option><option>State Board</option><option>NIOS</option><option>Other</option>
+          </select>
+        </div>
+        <div id="pe_boardCustomWrap" class="hidden"><label class="text-xs font-semibold text-brand block mb-1.5">Board Name</label><input id="pe_boardCustom" type="text" class="field" placeholder="Enter your board name"/></div>
+      </div>
+      <button onclick="saveProfileEdit()" class="btn-primary mb-3">Save Changes</button>
+      <button onclick="hideProfileEdit()" class="w-full text-ink-muted text-sm py-2 font-medium hover:text-brand transition">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOOL POPUP -->
+<div id="toolPopup" class="tool-popup">
+  <div class="hero-bg noise px-5 pt-12 pb-6 relative">
+    <div class="hero-orb" style="width:120px;height:120px;background:rgba(92,109,255,.2);right:-20px;top:-20px"></div>
+    <div class="flex items-center justify-between relative z-10">
+      <div>
+        <p class="text-blue-200 text-xs font-medium" id="popupCategory"></p>
+        <h2 class="text-white font-bold text-xl" id="popupTitle"></h2>
+      </div>
+      <button onclick="playSoundClick();closeToolPopup()" class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+  <div class="flex-1 overflow-y-auto p-5" id="popupBody"></div>
+  <div class="p-5 border-t border-gray-100" id="popupFooter"></div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════ -->
+<div id="app" class="pb-32">
+
+  <!-- ══ HEADER ══ -->
+  <div class="hero-bg noise px-5 pt-12 pb-8 relative">
+    <div class="hero-orb" style="width:200px;height:200px;background:rgba(92,109,255,.15);right:-60px;top:-60px"></div>
+    <div class="hero-orb" style="width:140px;height:140px;background:rgba(240,192,64,.1);left:-40px;bottom:-30px;animation-delay:2s"></div>
+    <div class="relative z-10">
+      <div class="flex items-center justify-between mb-5">
+        <!-- Logo — Replace logo URL here if needed -->
+        <div class="logo-wrap">
+          <div class="logo-img-box">
+            <img src="" alt="StudyAI Logo" onerror="this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,#5c6dff,#f0c040)'"/>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;line-height:1;letter-spacing:-.2px">
+            <span class="logo-text-main">Study</span><span class="logo-text-sub">AI</span>
+          </div>
+        </div>
+
+        <!-- Right: rank chip + avatar with plan badge overlaid -->
+        <div class="flex items-center gap-2">
+          <div id="headerRankChip" class="header-rank hidden">
+            <i class="fa-solid fa-ranking-star mr-1" style="font-size:9px;color:#f0c040"></i>
+            <span id="headerRankText">#—</span>
+          </div>
+          <!--
+            avatar-plan-wrap: positions plan badge absolutely over avatar bottom
+            Plan badge z-index is higher than avatar so it always shows on top
+          -->
+          <div class="avatar-plan-wrap">
+            <div id="avatarBtn"
+              class="w-10 h-10 rounded-full bg-accent flex items-center justify-center cursor-pointer text-sm shadow-lg overflow-hidden font-bold text-brand-900">
+              <i class="fa-solid fa-user text-brand-900"></i>
+            </div>
+            <!--
+              Plan badge overlaid on avatar:
+              - "Basic"   (gold)  = premium is active
+              - "Premium" (blue)  = not yet premium → click to buy
+            -->
+            <button id="planBadgeBtn" class="header-plan-badge hidden"
+              onclick="playSoundClick();handlePlanBadgeClick()"></button>
+          </div>
+        </div>
+      </div>
+
+      <p id="welcomeText" class="text-white/80 text-sm font-medium mb-4">Smart Tools for Every Student</p>
+
+      <!-- Search + Filter — home only -->
+      <div id="homeHeaderExtras" class="home-only">
+        <div class="search-wrap mb-3">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="text" placeholder="Search tools..."
+            class="field bg-white/10 border-white/20 focus:border-white/50"
+            style="color:white;caret-color:white" oninput="filterTools()"/>
+        </div>
+        <div class="flex gap-2 overflow-x-auto pb-1" id="filterTabs">
+          <button class="filter-chip active" onclick="playSoundClick();setFilter(this,'All')">All</button>
+          <button class="filter-chip"        onclick="playSoundClick();setFilter(this,'Free')">Free</button>
+          <!-- Premium filter: opens access popup instead of filtering -->
+          <button class="filter-chip"        onclick="playSoundClick();onPremiumFilterClick()">Premium</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="page-home" class="tab-page active px-4 pt-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-brand text-sm">AI-Powered Tools</h2>
+      <span id="toolCount" class="text-xs text-ink-muted font-medium"></span>
+    </div>
+    <div id="toolsGrid" class="grid grid-cols-2 gap-3"></div>
+    <div id="lockedCTA" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-20">
+      <button onclick="openLogin()" class="bg-brand text-white px-8 py-4 rounded-2xl font-semibold text-sm shadow-2xl flex items-center gap-2 hover:opacity-90 transition whitespace-nowrap">
+        <i class="fa-solid fa-lock text-accent mr-1"></i>Login to Access Tools
+      </button>
+    </div>
+  </div>
+
+  <!-- REFERRAL -->
+  <div id="page-referral" class="tab-page px-4 pt-5">
+    <div class="ref-card rounded-2xl p-5 mb-4 text-white fade-up relative overflow-hidden">
+      <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none"></div>
+      <div class="flex items-start justify-between mb-4">
+        <div><p class="text-blue-300 text-xs font-medium mb-0.5">Referral Program</p><h2 class="font-bold text-2xl leading-tight">Get Gifts for<br/>Referrals</h2></div>
+        <!-- Gift box icon — opens gift popup -->
+        <button onclick="playSoundClick();openGiftModal()"
+          class="w-11 h-11 rounded-xl bg-accent flex items-center justify-center flex-shrink-0 shadow-lg hover:scale-105 transition-transform">
+          <i class="fa-solid fa-gift text-brand-900 text-lg"></i>
+        </button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="stat-pill text-center"><p class="text-white font-bold text-2xl" id="refCountDisplay">0</p><p class="text-blue-300 text-xs mt-0.5">Referrals</p></div>
+        <div class="stat-pill text-center"><p class="text-white font-bold text-2xl" id="refPointsDisplay">0</p><p class="text-blue-300 text-xs mt-0.5">Points</p></div>
+        <div class="stat-pill text-center"><p class="text-accent font-bold text-2xl" id="refLevelDisplay">0</p><p class="text-blue-300 text-xs mt-0.5">Level</p></div>
+      </div>
+      <div class="flex items-center justify-between mb-1.5"><span class="text-xs text-blue-300 font-medium">Progress</span><span class="text-xs font-bold text-accent" id="refLevelLabel">Level 0</span></div>
+      <div class="level-bar-track mb-2"><div class="level-bar-fill" id="refLevelBar" style="width:0%"></div></div>
+      <p class="text-blue-300 text-xs" id="refLevelHint">Complete first 7 referrals to reach Level 1</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 fade-up delay-1">
+      <p class="text-xs font-semibold text-ink-muted mb-2 uppercase tracking-wide">Your Referral Link</p>
+      <div class="flex items-center gap-2 bg-gray-50 rounded-xl p-2.5">
+        <span id="refLink" class="text-xs font-mono truncate text-brand flex-1 select-all"></span>
+        <button onclick="playSoundClick();shareRefNative()" class="bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-lg flex-shrink-0 hover:opacity-90 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-share-nodes text-xs"></i> Share
+        </button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-4 fade-up delay-2">
+      <button onclick="playSoundClick();shareRef()" class="flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-3.5 rounded-2xl text-sm hover:bg-green-600 transition">
+        <i class="fa-brands fa-whatsapp text-base"></i> WhatsApp
+      </button>
+      <button onclick="playSoundClick();openAffiliate()" class="flex items-center justify-center gap-2 bg-brand text-white font-semibold py-3.5 rounded-2xl text-sm hover:opacity-90 transition">
+        <i class="fa-solid fa-handshake text-accent text-base"></i> Join Affiliate
+      </button>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm mb-4 fade-up delay-2">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i></div>
+        <div class="flex-1"><p class="font-semibold text-brand text-sm">Referral Completed</p><p class="text-xs text-ink-muted mt-0.5" id="refCompletedText">0 friends joined · 0 pts earned</p></div>
+        <div class="text-right flex-shrink-0"><p class="text-xs font-bold text-emerald-600">+120 pts</p><p class="text-xs text-ink-muted">per referral</p></div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm mb-4 fade-up delay-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl rank-badge flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-trophy text-brand-900"></i></div>
+        <div class="flex-1"><p class="font-semibold text-brand text-sm">Stage Rank</p><p class="text-xs text-ink-muted mt-0.5">Improves with referrals</p></div>
+        <p class="font-black text-brand text-lg" id="refRankDisplay">#—</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-5 shadow-sm fade-up delay-4">
+      <h3 class="font-semibold text-brand text-sm mb-3">How it works</h3>
+      <div class="flex flex-col gap-3">
+        <div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 text-brand text-xs font-bold">1</div><p class="text-sm text-ink-muted pt-0.5">Share your unique referral link with friends</p></div>
+        <div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 text-brand text-xs font-bold">2</div><p class="text-sm text-ink-muted pt-0.5">They sign up and share their referral code with you</p></div>
+        <div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0 text-brand text-xs font-bold">3</div><p class="text-sm text-ink-muted pt-0.5">Enter the code in the Gift Box to earn 120 points per referral</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINNERS -->
+  <div id="page-winners" class="tab-page px-4 pt-5">
+    <div class="hero-bg noise rounded-2xl p-5 mb-4 relative overflow-hidden fade-up">
+      <div class="hero-orb" style="width:100px;height:100px;background:rgba(255,255,255,.06);right:-20px;top:-20px"></div>
+      <div class="relative z-10 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-blue-200 text-xs font-medium">StudyAI Rankings</p>
+          <h2 class="text-white font-bold text-lg">Top Students</h2>
+          <p class="text-blue-200 text-xs mt-1">Updated daily · Points = referrals × 120</p>
+        </div>
+        <div class="rank-badge rounded-2xl px-4 py-3 text-center flex-shrink-0 shadow-lg">
+          <p class="text-xs font-semibold opacity-70 mb-0.5">Your Rank</p>
+          <p class="text-lg font-black leading-none" id="userRankDisplay">#—</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl p-1.5 shadow-sm mb-4 flex gap-1 fade-up delay-1">
+      <button class="wtab-btn active" id="wtab-today" onclick="playSoundClick();switchWinnersTab('today')">Today Winners</button>
+      <button class="wtab-btn"        id="wtab-top20" onclick="playSoundClick();switchWinnersTab('top20')">Top 20</button>
+    </div>
+    <div id="winners-today" class="bg-white rounded-2xl shadow-sm overflow-hidden fade-up delay-2"></div>
+    <div id="winners-top20" class="bg-white rounded-2xl shadow-sm overflow-hidden fade-up delay-2" style="display:none"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav-wrap">
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-home"     onclick="playSoundClick();navigateTo('home')">
+      <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div><span>Home</span>
+    </button>
+    <button class="nav-btn"        id="nav-referral" onclick="playSoundClick();navigateTo('referral')">
+      <div class="nav-icon-wrap"><i class="fa-solid fa-share-nodes"></i></div><span>Referral</span>
+    </button>
+    <button class="nav-btn"        id="nav-winners"  onclick="playSoundClick();navigateTo('winners')">
+      <div class="nav-icon-wrap"><i class="fa-solid fa-trophy"></i></div><span>Winners</span>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════ */
+const SCRIPT_URL           = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL";
+const WA_NUMBER            = '917896011657';
+const AFFILIATE_URL        = '#';
+const PREMIUM_PURCHASE_URL = '#'; // Replace with your payment link
+const POINTS_PER_REFERRAL  = 120;
+const REFS_PER_LEVEL       = 7; // every 7 referrals = new level
+const RANK_BOOST_PER_REF   = 1467; // rank decreases (improves) by this per referral
+
+/* ══════════════════════════════════════════════
+   SOUND SYSTEM
+   Resets currentTime=0 before play so rapid/repeated sounds work.
+══════════════════════════════════════════════ */
+function playSoundNotif() {
+  try { const a=document.getElementById('sndNotif');if(!a)return;a.volume=0.4;a.currentTime=0;a.play().catch(()=>{}); } catch(e){}
+}
+function playSoundClick() {
+  try { const a=document.getElementById('sndClick');if(!a)return;a.volume=0.2;a.currentTime=0;a.play().catch(()=>{}); } catch(e){}
+}
+
+/* ══════════════════════════════════════════════
+   URL PARAMS — captured at page load
+   NOTE: "period" param is NO LONGER needed.
+   Plan is auto-detected from the access key itself.
+══════════════════════════════════════════════ */
+const _urlParams   = new URLSearchParams(window.location.search);
+const _preParam    = _urlParams.get('pre')    || '';
+const _keyParam    = _urlParams.get('key')    || '';
+const incomingRef  = _urlParams.get('ref')    || '';
+
+/* ══════════════════════════════════════════════
+   PLAN DEFINITIONS
+   New key format:
+   ACCESSKEY = phoneNumber + year + planID + x + PLANLETTER + planID + "Z"
+   Where:
+     PLANLETTER maps to planID (days):
+       A → 1    B → 7    C → 30    D → 60    E → 180    F → 365
+     planID in key appears TWICE: once after year, once before "Z"
+     x = subscription count (any integer ≥ 1)
+   Example: 98765432120253011C30Z
+     = phone(9876543210) + year(2025) + planID(30) + x(1) + letter(C) + planID(30) + Z
+══════════════════════════════════════════════ */
+
+// Letter → days mapping
+const PLAN_LETTER_DAYS = { A:1, B:7, C:30, D:60, E:180, F:365 };
+
+// Days → letter reverse
+const PLAN_DAYS_LETTER = Object.fromEntries(Object.entries(PLAN_LETTER_DAYS).map(([l,d])=>[d,l]));
+
+// Human-readable plan name from days
+function planNameFromDays(days) {
+  const map = {1:'1 Day Access',7:'1 Week Access',30:'1 Month Access',60:'2 Month Access',180:'6 Month Access',365:'1 Year Access'};
+  return map[days] || `${days}-Day Access`;
+}
+
+/* ══════════════════════════════════════════════
+   PREMIUM STATE
+══════════════════════════════════════════════ */
+function isPremiumActive() {
+  if (localStorage.getItem('PremiumtoolsAcces') !== 'true') return false;
+  const expiry = localStorage.getItem('PremiumtoolsExpiry');
+  if (!expiry) return false;
+  if (new Date() > new Date(expiry)) {
+    localStorage.setItem('PremiumtoolsAcces', 'false');
+    localStorage.removeItem('PremiumtoolsExpiry');
+    return false;
+  }
+  return true;
+}
+
+function activatePremium(days) {
+  const exp = new Date();
+  exp.setDate(exp.getDate() + days);
+  localStorage.setItem('PremiumtoolsAcces', 'true');
+  localStorage.setItem('PremiumtoolsExpiry', exp.toISOString());
+}
+
+/**
+ * parseKeyPlan — extracts plan details directly from the access key.
+ * No URL "period" param needed.
+ *
+ * Key structure: phoneDigits + year + planID + x + PLANLETTER + planID + "Z"
+ * Algorithm:
+ *   1. Key must end with "Z"
+ *   2. Char before "Z" must be a plan letter (A–F)
+ *   3. Before that letter: planID digits
+ *   4. Before that: x digits (subscription count, ≥ 1)
+ *   5. Before that: year (4 digits)
+ *   6. Before that: phone (10 digits)
+ *   7. Validate: PLANLETTER days must match planID
+ *
+ * Returns { phoneDigits, year, planDays, planLetter, x } or null if invalid
+ */
+function parseKeyPlan(key) {
+  if (!key || !key.endsWith('Z')) return null;
+  const raw = key.slice(0, -1); // strip trailing Z
+
+  // Must end with a plan letter (A–F)
+  const lastChar = raw.slice(-1).toUpperCase();
+  if (!PLAN_LETTER_DAYS[lastChar]) return null;
+  const planLetter = lastChar;
+  const planDays   = PLAN_LETTER_DAYS[planLetter];
+
+  // Before the letter: planID digits that match planDays
+  const planIDStr  = String(planDays);
+  const withoutLetter = raw.slice(0, -1); // remove letter
+  if (!withoutLetter.endsWith(planIDStr)) return null;
+  const withoutPlanID = withoutLetter.slice(0, -planIDStr.length);
+
+  // withoutPlanID = phoneDigits + year + planID(first occurrence) + x
+  // The first planID occurrence is the same as planDays
+  // So: remaining = phone + year + planIDStr + x
+  // We know year = 4 digits, phone = 10 digits → prefix = 14 chars
+  if (withoutPlanID.length < 14 + planIDStr.length + 1) return null; // too short
+
+  const phone10  = withoutPlanID.slice(0, 10);
+  const yearStr  = withoutPlanID.slice(10, 14);
+  const rest     = withoutPlanID.slice(14); // planIDStr + x
+
+  if (!/^\d{10}$/.test(phone10))   return null;
+  if (!/^\d{4}$/.test(yearStr))    return null;
+  if (!rest.startsWith(planIDStr)) return null;
+
+  const xStr = rest.slice(planIDStr.length);
+  const x    = parseInt(xStr);
+  if (!xStr || isNaN(x) || x < 1) return null;
+
+  return { phoneDigits: phone10, year: parseInt(yearStr), planDays, planLetter, x };
+}
+
+/**
+ * validatePremiumKey
+ * Auto-detects plan from the key — no URL period needed.
+ * Shows loading state briefly before activating.
+ */
+function validatePremiumKey() {
+  playSoundClick();
+  const phoneRaw  = document.getElementById('premiumPhone').value.replace(/\D/g,'');
+  const keyInput  = document.getElementById('premiumKey').value.trim();
+  const errorEl   = document.getElementById('keyError');
+  const successEl = document.getElementById('keySuccess');
+  const activateBtn = document.querySelector('#premiumAccessModal .btn-primary');
+  errorEl.style.display   = 'none';
+  successEl.style.display = 'none';
+
+  if (!phoneRaw || phoneRaw.length < 10) {
+    errorEl.textContent = 'Please enter a valid 10-digit phone number.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const year = new Date().getFullYear();
+
+  // Parse plan from key
+  const parsed = parseKeyPlan(keyInput);
+
+  if (!parsed) {
+    errorEl.textContent = 'Wrong Access Key. Please check and try again.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Validate phone matches key
+  if (parsed.phoneDigits !== phoneRaw.slice(-10)) {
+    errorEl.textContent = 'Wrong Access Key. Please check and try again.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Validate year matches current year
+  if (parsed.year !== year) {
+    errorEl.textContent = 'Wrong Access Key. Please check and try again.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Valid key — show loading state
+  if (activateBtn) { activateBtn.disabled = true; activateBtn.textContent = 'Activating…'; }
+
+  setTimeout(() => {
+    activatePremium(parsed.planDays);
+    successEl.textContent   = `Access activated! ${planNameFromDays(parsed.planDays)} unlocked.`;
+    successEl.style.display = 'block';
+    if (activateBtn) { activateBtn.disabled = false; activateBtn.innerHTML = '<i class="fa-solid fa-unlock mr-2"></i>Activate Premium'; }
+
+    setTimeout(() => {
+      closePremiumModal();
+      renderTools();
+      updatePlanBadge();
+      updateProfilePremiumStatus();
+      showToast(`Premium activated! ${planNameFromDays(parsed.planDays)} unlocked.`);
+    }, 1500);
+  }, 800); // brief loading delay for UX feel
+}
+
+/** Open premium modal — no period dependency.
+ *  Can be called from:
+ *  1. URL with ?pre=yes&key=...
+ *  2. "Premium" filter chip click
+ *  3. "Get Access" button on premium tool cards
+ */
+function openPremiumModal() {
+  // Try to auto-detect plan from URL key for display
+  const parsedFromURL = _keyParam ? parseKeyPlan(_keyParam) : null;
+  if (parsedFromURL) {
+    document.getElementById('premiumPlanName').textContent     = planNameFromDays(parsedFromURL.planDays);
+    document.getElementById('premiumPlanDuration').textContent = `Duration: ${parsedFromURL.planDays} day${parsedFromURL.planDays!==1?'s':''}`;
+    document.getElementById('premiumPlanLabel').textContent    = 'Premium Plan Detected';
+  } else {
+    document.getElementById('premiumPlanName').textContent     = 'Premium Access';
+    document.getElementById('premiumPlanDuration').textContent = 'Plan auto-detected from your key';
+    document.getElementById('premiumPlanLabel').textContent    = 'Enter your access key';
+  }
+
+  document.getElementById('keyError').style.display   = 'none';
+  document.getElementById('keySuccess').style.display = 'none';
+
+  // Phone: auto-fill from user if available, make readonly
+  const savedPhone = getStoredPhoneDigits();
+  const phoneEl    = document.getElementById('premiumPhone');
+  const hintEl     = document.getElementById('premiumPhoneHint');
+  if (savedPhone) {
+    phoneEl.value    = savedPhone;
+    phoneEl.readOnly = true;
+    phoneEl.classList.add('field-readonly');
+    if (hintEl) hintEl.style.display = 'block';
+  } else {
+    phoneEl.value    = '';
+    phoneEl.readOnly = false;
+    phoneEl.classList.remove('field-readonly');
+    if (hintEl) hintEl.style.display = 'none';
+  }
+
+  // Key: auto-fill from URL if present
+  document.getElementById('premiumKey').value = _keyParam || '';
+
+  // Reset activate button
+  const activateBtn = document.querySelector('#premiumAccessModal .btn-primary');
+  if (activateBtn) { activateBtn.disabled = false; activateBtn.innerHTML = '<i class="fa-solid fa-unlock mr-2"></i>Activate Premium'; }
+
+  document.getElementById('premiumAccessModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closePremiumModal() {
+  document.getElementById('premiumAccessModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/** handlePlanBadgeClick: premium active → show expiry info; else → open access modal */
+function handlePlanBadgeClick() {
+  if (isPremiumActive()) {
+    const exp = localStorage.getItem('PremiumtoolsExpiry');
+    showToast(`Premium active · Expires ${new Date(exp).toLocaleDateString('en-IN')}`);
+  } else {
+    openPremiumModal();
+  }
+}
+
+/**
+ * updatePlanBadge
+ * Premium active → "Basic" gold badge (plan is active)
+ * Not premium   → "Premium" blue badge (invite to upgrade)
+ * Badge overlaid on top of avatar with high z-index
+ */
+function updatePlanBadge() {
+  const btn = document.getElementById('planBadgeBtn');
+  if (!user) { btn.classList.add('hidden'); return; }
+  btn.classList.remove('hidden');
+  if (isPremiumActive()) {
+    btn.textContent = 'Basic';
+    btn.className   = 'header-plan-badge is-premium';
+  } else {
+    btn.textContent = 'Premium';
+    btn.className   = 'header-plan-badge is-basic';
+  }
+}
+
+function updateProfilePremiumStatus() {
+  const el = document.getElementById('profilePremiumStatus');
+  if (!el) return;
+  if (isPremiumActive()) {
+    const exp = new Date(localStorage.getItem('PremiumtoolsExpiry')).toLocaleDateString('en-IN');
+    el.textContent = `Premium Active · Expires ${exp}`;
+    el.style.background = '#f0fdf4'; el.style.color = '#16a34a';
+  } else {
+    el.textContent = 'Free Plan';
+    el.style.background = '#f0f2ff'; el.style.color = '#3541e0';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   PHONE HELPERS
+   getStoredPhoneDigits — returns 10-digit string from user.phone
+   All phone fields across popups use +91 prefix and are readonly
+   when phone is already saved in localStorage.
+══════════════════════════════════════════════ */
+function getStoredPhoneDigits() {
+  const u = JSON.parse(localStorage.getItem('studyai_user') || 'null');
+  if (!u || !u.phone) return '';
+  return u.phone.replace(/\D/g,'').slice(-10);
+}
+
+/* ══════════════════════════════════════════════
+   GIFT BOX & REFERRAL CODE SYSTEM
+   Code format: (phoneNumber + year * date) + D + X + R
+   Where:
+     phoneNumber = 10 digits of user
+     year        = current year (e.g. 2025)
+     date        = current day of month (1–31)
+     D           = date letter: 1→A, 2→B, ..., 26→Z, 27→AA, 28→AB...
+     X           = a fixed multiplier (we use 5 as default, configurable)
+     R           = current referral count of the user who GENERATED the code
+   Validation:
+     Extract phone from stored user data
+     Compute expected code for today and check if input matches
+   On valid: increment refCount, add points, check level up, update rank
+══════════════════════════════════════════════ */
+
+/**
+ * dateLetter — converts date number to letter sequence
+ * 1→A, 2→B, ..., 26→Z, 27→AA, 28→AB, etc.
+ */
+function dateLetter(d) {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (d <= 26) return letters[d - 1];
+  // For d > 26: AA, AB, ... (d-27 gives index in second cycle)
+  const extra = d - 27;
+  return letters[Math.floor(extra / 26)] + letters[extra % 26];
+}
+
+/**
+ * buildReferralCode — generates a referral code for a user
+ * Code = (phoneDigits + year * date) + dateLetter + X + R
+ * where X=5 (fixed), R=current refCount of that user
+ */
+function buildReferralCode(phoneDigits, refCountVal) {
+  const d     = new Date();
+  const year  = d.getFullYear();
+  const date  = d.getDate();
+  const base  = String(parseInt(phoneDigits) + year * date);
+  const dLet  = dateLetter(date);
+  const X     = 5; // fixed multiplier
+  return base + dLet + X + refCountVal;
+}
+
+function openGiftModal() {
+  if (!user) { openLogin(); return; }
+
+  // Reset error/success
+  document.getElementById('giftError').style.display   = 'none';
+  document.getElementById('giftSuccess').style.display = 'none';
+  document.getElementById('giftCode').value            = '';
+
+  // Phone: always readonly, filled from localStorage
+  const savedPhone = getStoredPhoneDigits();
+  const giftPhoneEl = document.getElementById('giftPhone');
+  giftPhoneEl.value    = savedPhone;
+  giftPhoneEl.readOnly = true;
+  giftPhoneEl.classList.add('field-readonly');
+
+  // Restart gift animation
+  const box = document.getElementById('giftBoxIcon');
+  box.style.animation = 'none';
+  void box.offsetHeight; // reflow to restart
+  box.style.animation = '';
+
+  document.getElementById('giftModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeGiftModal() {
+  document.getElementById('giftModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/**
+ * validateGiftCode
+ * Validates referral code entered by user.
+ * Generates expected code for today and current refCount values 0–999,
+ * comparing against input. This allows any user's code (any ref count)
+ * to be redeemed as long as phone+date+year part is correct.
+ */
+function validateGiftCode() {
+  playSoundClick();
+  const codeInput = document.getElementById('giftCode').value.trim().toUpperCase();
+  const errEl     = document.getElementById('giftError');
+  const sucEl     = document.getElementById('giftSuccess');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!codeInput) {
+    errEl.textContent   = 'Please enter a referral code.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Validate: try reconstructing expected code for today for any refCount 0–999
+  const d     = new Date();
+  const year  = d.getFullYear();
+  const date  = d.getDate();
+  const dLet  = dateLetter(date);
+  const X     = 5;
+  const dLetX = dLet + X; // the fixed middle part after base
+
+  // Extract what should be: base = phone+year*date (variable per user)
+  // The code ends with: dLet + X + R (where R is some refCount number)
+  // Strategy: code must contain dLet+X at the right position, end with digits (R)
+
+  // Check structure: must end with dLetX (e.g. "C5") followed by digits
+  const fixedMid = dLet + X;
+  const midIdx   = codeInput.lastIndexOf(fixedMid);
+  if (midIdx < 0) {
+    errEl.textContent   = 'Invalid Code. Please check and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const basePart = codeInput.slice(0, midIdx);
+  const rPart    = codeInput.slice(midIdx + fixedMid.length);
+  const R        = parseInt(rPart);
+
+  // basePart must be a number
+  if (!/^\d+$/.test(basePart) || isNaN(R) || rPart === '') {
+    errEl.textContent   = 'Invalid Code. Please check and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Verify: basePart = parseInt(phone10) + year * date
+  // We don't know the code creator's phone, but we validate the math structure
+  const baseNum = parseInt(basePart);
+  // Valid base: baseNum - year*date must be a plausible 10-digit phone (6000000000–9999999999)
+  const phonePart = baseNum - year * date;
+  if (phonePart < 6000000000 || phonePart > 9999999999) {
+    errEl.textContent   = 'Invalid Code. Please check and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Prevent redeeming own code
+  const myPhone = parseInt(getStoredPhoneDigits()) || 0;
+  if (phonePart === myPhone) {
+    errEl.textContent   = 'You cannot redeem your own referral code.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Check this code hasn't been redeemed today
+  const codeKey = `studyai_usedCode_${todayKey()}`;
+  const usedCodes = JSON.parse(localStorage.getItem(codeKey) || '[]');
+  if (usedCodes.includes(codeInput)) {
+    errEl.textContent   = 'This code has already been redeemed today.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Valid code — apply rewards
+  usedCodes.push(codeInput);
+  localStorage.setItem(codeKey, JSON.stringify(usedCodes));
+
+  // Increment referral count
+  refCount++;
+  localStorage.setItem('studyai_refCount', String(refCount));
+
+  // Points = refCount * POINTS_PER_REFERRAL
+  const newPoints = refCount * POINTS_PER_REFERRAL;
+  localStorage.setItem('studyai_points', String(newPoints));
+
+  // Level = floor(refCount / REFS_PER_LEVEL)
+  const newLevel = Math.floor(refCount / REFS_PER_LEVEL);
+  localStorage.setItem('studyai_level', String(newLevel));
+
+  // Rank: improve by RANK_BOOST_PER_REF (decrease rank number = better rank)
+  const rankData = JSON.parse(localStorage.getItem('studyai_rank') || 'null');
+  if (rankData) {
+    rankData.value = Math.max(1, rankData.value - RANK_BOOST_PER_REF);
+    localStorage.setItem('studyai_rank', JSON.stringify(rankData));
+  }
+
+  // UI feedback
+  sucEl.textContent   = `Code accepted! +120 pts added. Total referrals: ${refCount}`;
+  sucEl.style.display = 'block';
+
+  setTimeout(() => {
+    closeGiftModal();
+    refreshReferralUI();
+    refreshRankBadge();
+    showToast(`Referral added! +${POINTS_PER_REFERRAL} pts`);
+  }, 1800);
+}
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let user         = JSON.parse(localStorage.getItem('studyai_user')  || 'null');
+let likes        = JSON.parse(localStorage.getItem('studyai_likes') || '{}');
+let activeFilter = 'All';
+// refCount is loaded from localStorage in refreshReferralUI — NOT auto-incremented by time/hash
+let refCount     = parseInt(localStorage.getItem('studyai_refCount') || '0');
+
+function todayKey() {
+  const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/**
+ * getOrInitRank — reads from localStorage only.
+ * Rank changes ONLY when a referral code is validated.
+ * Daily decay is removed — rank is purely controlled by user actions.
+ */
+function getOrInitRank() {
+  let s = JSON.parse(localStorage.getItem('studyai_rank') || 'null');
+  if (!s) {
+    s = { value: Math.floor(Math.random() * 20000) + 50000 };
+    localStorage.setItem('studyai_rank', JSON.stringify(s));
+  }
+  return s.value;
+}
+
+/**
+ * getLevelData — based on refCount
+ * Level increases every REFS_PER_LEVEL (7) referrals
+ */
+function getLevelData(count) {
+  const level    = Math.floor(count / REFS_PER_LEVEL);
+  const progress = count % REFS_PER_LEVEL;
+  return { level, progress, needed: REFS_PER_LEVEL - progress, pct: Math.round((progress / REFS_PER_LEVEL) * 100) };
+}
+
+/* ══════════════════════════════════════════════
+   GOOGLE SHEETS
+══════════════════════════════════════════════ */
+function sendToSheets(u) {
+  if (!SCRIPT_URL || SCRIPT_URL.startsWith('PASTE')) return;
+  fetch(SCRIPT_URL, {
+    method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name:u.name, phone:u.phone, cls:u.cls,
+      stream:u.stream||'none', board:u.board,
+      timestamp:new Date().toISOString(), referral:u.referredBy||'none'
+    })
+  }).catch(()=>{});
+}
+
+/* ══════════════════════════════════════════════
+   HASH ROUTING
+══════════════════════════════════════════════ */
+function navigateTo(section, subSection) {
+  let hash = '#' + section; if (subSection) hash += subSection;
+  if (window.location.hash !== hash) history.pushState(null,'',hash);
+  applyRoute(section, subSection);
+}
+function applyRoute(section, subSection) {
+  ['home','referral','winners'].forEach(t => {
+    document.getElementById('page-'+t)?.classList.toggle('active', t===section);
+    document.getElementById('nav-'+t)?.classList.toggle('active',  t===section);
+  });
+  const extras = document.getElementById('homeHeaderExtras');
+  section==='home' ? extras?.classList.remove('hidden-section') : extras?.classList.add('hidden-section');
+  if (section==='winners' && subSection) switchWinnersTab(subSection.replace('winners',''), false);
+  // Only refresh referral UI when explicitly switching to referral tab
+  // refCount is NOT auto-updated on hash change
+  if (section==='referral') refreshReferralUI();
+  if (section==='winners')  refreshRankBadge();
+}
+function routeFromHash() {
+  const hash = (window.location.hash||'#home').replace('#','').toLowerCase();
+  if (hash.startsWith('winnerstoday')){applyRoute('winners','today');return;}
+  if (hash.startsWith('winnerstop20')){applyRoute('winners','top20');return;}
+  if (hash==='referral'){applyRoute('referral');return;}
+  if (hash==='winners') {applyRoute('winners'); return;}
+  applyRoute('home');
+}
+window.addEventListener('hashchange', routeFromHash);
+window.addEventListener('popstate',   routeFromHash);
+
+/* ══════════════════════════════════════════════
+   TOOL DEFINITIONS
+══════════════════════════════════════════════ */
+function getUserClass(){return user?.cls||'11';}
+function getUserBoard(){return user?.board||'CBSE';}
+
+const TOOLS=[
+  {id:1,icon:'fa-circle-question',iconBg:'bg-blue-50',iconColor:'text-blue-500',title:'Doubt Solver',desc:'Get instant step-by-step explanations for any concept.',cat:['All','Free'],comingSoon:false,premium:false,
+   fields:[{id:'topic',label:'Topic or Concept',type:'text',placeholder:'e.g. Laws of Motion, Quadratic Equations...'},{id:'doubt',label:'Your Doubt',type:'textarea',placeholder:'Describe your doubt in detail...'}],
+   buildPrompt:d=>`You are an expert teacher. Solve this doubt step by step for a Class ${getUserClass()} student (Board: ${getUserBoard()}):\nTopic: ${d.topic}\nDoubt: ${d.doubt}\nExplain clearly with examples. End with key takeaway points.`},
+  {id:2,icon:'fa-file-lines',iconBg:'bg-violet-50',iconColor:'text-violet-500',title:'Notes Generator',desc:'Generate concise, exam-ready notes for any chapter.',cat:['All','Free'],comingSoon:false,premium:false,
+   fields:[{id:'chapter',label:'Chapter or Topic',type:'text',placeholder:'e.g. Thermodynamics, French Revolution...'},{id:'style',label:'Note Style',type:'select',options:['Concise Bullet Points','Detailed Paragraph','Flashcard Format','Mind Map Outline']}],
+   buildPrompt:d=>`Create ${d.style} notes for a Class ${getUserClass()} student (Board: ${getUserBoard()}) on: ${d.chapter}.\nInclude: Key concepts, formulas/dates/facts, definitions, and exam tips.`},
+  {id:3,icon:'fa-calendar-check',iconBg:'bg-emerald-50',iconColor:'text-emerald-500',title:'Routine Generator',desc:'Build a personalised study schedule for your exams.',cat:['All','Free'],comingSoon:false,premium:false,
+   fields:[{id:'exam',label:'Exam or Goal',type:'text',placeholder:'e.g. CBSE Boards, JEE Mains, NEET...'},{id:'weeks',label:'Time Available',type:'select',options:['1 Week','2 Weeks','1 Month','2 Months','3 Months']},{id:'hours',label:'Daily Study Hours',type:'select',options:['2 Hours','4 Hours','6 Hours','8 Hours','10+ Hours']},{id:'weak',label:'Topics to Focus On',type:'text',placeholder:'e.g. Calculus, Organic Chemistry, History...'}],
+   buildPrompt:d=>`Create a detailed study routine for a Class ${getUserClass()} student (Board: ${getUserBoard()}).\nGoal: ${d.exam} | Time: ${d.weeks} | Daily: ${d.hours} | Focus: ${d.weak}`},
+  {id:4,icon:'fa-star',iconBg:'bg-amber-50',iconColor:'text-amber-500',title:'Important Questions',desc:'Get the most asked questions with model answers.',cat:['All'],comingSoon:false,premium:false,
+   fields:[{id:'chapter',label:'Chapter or Topic',type:'text',placeholder:'e.g. Current Electricity, Mughal Empire...'},{id:'qtype',label:'Question Type',type:'select',options:['1 Mark (MCQ)','2 Mark','3 Mark','5 Mark (Long Answer)','All Types']},{id:'numQ',label:'Number of Questions',type:'select',options:['1','2','3','4','5','6','7','8','9']}],
+   buildPrompt:d=>`List ${d.numQ} most important ${d.qtype} questions for a Class ${getUserClass()} student (Board: ${getUserBoard()}) on: ${d.chapter}. For each: question, marking hints, model answer.`},
+  {id:5,icon:'fa-pencil',iconBg:'bg-orange-50',iconColor:'text-orange-500',title:'Practice Questions',desc:'Generate fresh practice questions on any topic.',cat:['All'],comingSoon:false,premium:false,
+   fields:[{id:'topic',label:'Topic or Chapter',type:'text',placeholder:'e.g. Trigonometry, Photosynthesis...'},{id:'diff',label:'Difficulty Level',type:'select',options:['Easy','Medium','Hard','Mixed']},{id:'numQ',label:'Number of Questions',type:'select',options:['1','2','3','4','5','6','7','8','9']}],
+   buildPrompt:d=>`Generate ${d.numQ} unique ${d.diff} practice questions on: ${d.topic} for a Class ${getUserClass()} student (Board: ${getUserBoard()}). Include answers and explanations.`},
+  {id:6,icon:'fa-language',iconBg:'bg-teal-50',iconColor:'text-teal-500',title:'Essay Writer',desc:'Generate structured essays, reports and assignments.',cat:['All','Free'],comingSoon:false,premium:false,
+   fields:[{id:'topic',label:'Essay Topic',type:'text',placeholder:'e.g. Impact of Social Media, Climate Change...'},{id:'words',label:'Word Count',type:'select',options:['200 words','400 words','600 words','800 words','1000+ words']},{id:'style',label:'Style',type:'select',options:['Academic','Descriptive','Persuasive','Narrative']}],
+   buildPrompt:d=>`Write a ${d.words} ${d.style} essay on: "${d.topic}" for a Class ${getUserClass()} student. Include: Introduction, body paragraphs, strong conclusion.`},
+  {id:7,icon:'fa-robot',iconBg:'bg-pink-50',iconColor:'text-pink-500',title:'AI Mock Test',desc:'Generate a custom chapter-wise mock test instantly.',cat:['All','Premium'],comingSoon:true,premium:true},
+  {id:8,icon:'fa-chart-line',iconBg:'bg-cyan-50',iconColor:'text-cyan-500',title:'Performance Analyser',desc:'Analyse your weak areas and get improvement tips.',cat:['All','Premium'],comingSoon:false,premium:true,
+   fields:[{id:'topic',label:'Subject or Topic',type:'text',placeholder:'e.g. Maths, Physics...'},{id:'issue',label:'Describe your issue',type:'textarea',placeholder:'e.g. I struggle with calculus derivations...'}],
+   buildPrompt:d=>`As an academic coach, analyse weak areas for a Class ${getUserClass()} student in: ${d.topic}. Issue: ${d.issue}. Provide a detailed improvement plan.`}
+];
+
+function getLikeBase(id){const d=new Date();return(id*d.getDate())+(id*(d.getMonth()+1));}
+function getTotalLikes(id){return getLikeBase(id)+(likes[id]||0);}
+
+/* ══════════════════════════════════════════════
+   RENDER TOOL CARDS
+   - comingSoon  → "Early Access" → WhatsApp
+   - premium && !active → "Get Access" → purchase page
+   - premium && active  → "Open" → tool popup
+   - free tools → "Open" → tool popup
+══════════════════════════════════════════════ */
+function renderTools() {
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const filtered = TOOLS.filter(t=>t.cat.includes(activeFilter)&&(!q||t.title.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q)));
+  document.getElementById('toolCount').textContent = `${filtered.length} tool${filtered.length!==1?'s':''}`;
+  const premiumOn = isPremiumActive();
+
+  document.getElementById('toolsGrid').innerHTML = filtered.map((t,i) => {
+    let badgeHTML='', btnClass='', btnLabel='', btnAction='';
+    if (t.comingSoon) {
+      badgeHTML = `<span class="coming-badge">SOON</span>`;
+      btnClass  = 'bg-amber-50 text-amber-700 border border-amber-200';
+      btnLabel  = 'Early Access';
+      btnAction = `openEarlyAccess('${t.title}')`;
+    } else if (t.premium && !premiumOn) {
+      badgeHTML = `<span class="premium-badge">PREMIUM</span>`;
+      btnClass  = 'bg-gradient-to-r from-brand-500 to-brand-700 text-white';
+      btnLabel  = 'Get Access';
+      btnAction = `openGetAccess('${t.title}')`;
+    } else {
+      if (t.premium) badgeHTML = `<span class="premium-badge">PREMIUM</span>`;
+      btnClass  = 'bg-brand text-white';
+      btnLabel  = 'Open';
+      btnAction = `openTool(${t.id})`;
+    }
+    return `
+    <div class="tool-card bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-3 fade-up" style="animation-delay:${i*0.05}s" id="card-${t.id}">
+      <div class="flex items-start justify-between">
+        <div class="w-10 h-10 rounded-xl ${t.iconBg} flex items-center justify-center"><i class="fa-solid ${t.icon} ${t.iconColor}"></i></div>
+        ${badgeHTML}
+      </div>
+      <div class="flex-1">
+        <h3 class="font-semibold text-brand text-sm leading-tight">${t.title}</h3>
+        <p class="text-ink-muted text-xs mt-1 leading-relaxed">${t.desc}</p>
+      </div>
+      <div class="flex items-center justify-between pt-1">
+        <button class="like-btn flex items-center gap-1.5 text-xs text-ink-muted" onclick="handleLike(${t.id},event)">
+          <i class="fa-${likes['liked_'+t.id]?'solid':'regular'} fa-heart ${likes['liked_'+t.id]?'text-red-500':''}" id="heart-${t.id}"></i>
+          <span id="likeCount-${t.id}">${getTotalLikes(t.id)}</span>
+        </button>
+        <button class="${btnClass} text-xs font-semibold px-3 py-2 rounded-xl transition hover:opacity-90"
+          onclick="playSoundClick();${btnAction}">${btnLabel}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const guard = document.getElementById('appInteractGuard');
+  const cta   = document.getElementById('lockedCTA');
+  if (!user) { guard.classList.add('active'); cta?.classList.remove('hidden'); }
+  else       { guard.classList.remove('active'); cta?.classList.add('hidden'); }
+}
+
+function openEarlyAccess(toolName) {
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I want Early Access to "${toolName}" on StudyAI!`)}`, '_blank');
+}
+function openGetAccess(toolName) {
+  // Opens the premium access modal — no redirect to external page
+  openPremiumModal();
+}
+function setFilter(btn, cat) {
+  // Premium chip is handled by onPremiumFilterClick — not a normal filter
+  activeFilter = cat;
+  document.querySelectorAll('#filterTabs .filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderTools();
+}
+
+/**
+ * onPremiumFilterClick — clicking "Premium" filter chip
+ * does NOT navigate away; instead opens the access key popup
+ */
+function onPremiumFilterClick() {
+  openPremiumModal();
+}
+function filterTools(){renderTools();}
+
+function handleLike(id, e) {
+  e.stopPropagation();
+  if (!user) { openLogin(); return; }
+  const key = 'liked_'+id;
+  if (likes[key]){delete likes[key];likes[id]=Math.max(0,(likes[id]||0)-1);}
+  else{likes[key]=true;likes[id]=(likes[id]||0)+1;}
+  localStorage.setItem('studyai_likes', JSON.stringify(likes));
+  document.getElementById('heart-'+id).className=`fa-${likes[key]?'solid':'regular'} fa-heart ${likes[key]?'text-red-500':''}`;
+  document.getElementById('likeCount-'+id).textContent = getTotalLikes(id);
+}
+
+/* ══════════════════════════════════════════════
+   TOOL POPUP
+══════════════════════════════════════════════ */
+function openTool(id) {
+  if (!user) { openLogin(); return; }
+  const t = TOOLS.find(x=>x.id===id);
+  document.getElementById('popupCategory').textContent = t.cat.filter(c=>!['All','Free','Popular','New','Premium'].includes(c)).join(' · ')||'AI Tool';
+  document.getElementById('popupTitle').textContent    = t.title;
+  document.getElementById('popupBody').innerHTML = `
+    <p class="text-ink-muted text-sm mb-5 leading-relaxed">${t.desc}</p>
+    <div class="flex flex-col gap-4">
+      ${t.fields.map(f=>`
+        <div><label class="text-xs font-semibold text-brand block mb-1.5">${f.label}</label>
+        ${f.type==='select'?`<select id="pf_${f.id}" class="field">${(f.options||[]).map(o=>`<option>${o}</option>`).join('')}</select>`
+        :f.type==='textarea'?`<textarea id="pf_${f.id}" rows="4" class="field resize-none" placeholder="${f.placeholder||''}"></textarea>`
+        :`<input id="pf_${f.id}" type="text" class="field" placeholder="${f.placeholder||''}"/>`}
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('popupFooter').innerHTML = `
+    <button class="btn-primary" onclick="playSoundClick();submitTool(${id})">
+      <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Ask ChatGPT
+    </button>`;
+  document.getElementById('toolPopup').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeToolPopup(){document.getElementById('toolPopup').classList.remove('show');document.body.style.overflow='';}
+function submitTool(id) {
+  const t=TOOLS.find(x=>x.id===id), data={};
+  t.fields.forEach(f=>{data[f.id]=document.getElementById('pf_'+f.id)?.value||'';});
+  window.open('https://chatgpt.com/?prompt='+encodeURIComponent(t.buildPrompt(data)),'_blank');
+}
+
+/* ══════════════════════════════════════════════
+   WINNERS DATA — all points multiples of 120
+══════════════════════════════════════════════ */
+const FIRST_NAMES=['Aarav','Aisha','Akash','Alok','Amara','Amit','Ananya','Anjali','Arjun','Aryan','Asmita','Avni','Ayaan','Bhavna','Chirag','Deepa','Deepika','Dev','Dhruv','Divya','Eklavya','Esha','Farhan','Fatima','Gaurav','Gauri','Hana','Harsh','Heena','Himanshu','Ira','Ishaan','Ishika','Jai','Jatin','Jiya','Kabir','Kajal','Karan','Kartik','Kaveri','Kavya','Kiara','Komal','Kriti','Lakshay','Lavanya','Mahesh','Manav','Manvi','Meera','Mihir','Mohit','Muskan','Nandini','Nikhil','Nilima','Nitin','Omkar','Oviya','Pankaj','Parth','Pooja','Priya','Qasim','Rahul','Rajan','Rajvi','Ravi','Riya','Rohit','Ruchika','Sachin','Saloni','Saurabh','Shalini','Shivam','Simran','Sneha','Soham','Subhash','Sumit','Tanvi','Tanya','Trisha','Uday','Ujjwal','Vaibhav','Vanshika','Vikas','Vikram','Vinay','Vivek','Waqar','Waheeda','Yash','Yuvraj','Zara','Zoya','Arpit'];
+const SURNAMES=['Sharma','Verma','Khan','Das','Singh','Patel','Gupta','Nair','Rao','Iyer','Joshi','Reddy','Mishra','Pandey','Tiwari','Desai','Agarwal','Menon','Bose','Kapoor','Kaur','Pillai','Mehta','Roy','Wagh','Dubey','Saxena','Rajan','Sinha','Bhat','Malhotra','Banerjee','Thakur','Nambiar','Arora','Grover','Bajaj','Krishnan','Shah','More'];
+const TOP20_NAMES=['Aryan Sharma','Priya Nair','Rohit Verma','Sneha Gupta','Akash Patel','Divya Rao','Karan Singh','Meera Joshi','Aditya Kumar','Pooja Iyer','Vivek Mishra','Ananya Reddy','Shivam Tiwari','Riya Desai','Harsh Agarwal','Kavya Menon','Rahul Pandey','Simran Kaur','Nikhil Jain','Tanvi Bhat'];
+
+function seededShuffle(arr,seed){const a=[...arr];let s=seed;for(let i=a.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor((s/233280)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function getDailySeed(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();}
+function getTodayPoints(idx){const s=getDailySeed()+idx*53;return(Math.floor(((s*9301+49297)%233280/233280)*15)+1)*120;}
+function getTop20Points(rank){const d=new Date();const baseRefs=336-(rank*14);const dailyBonus=Math.floor(d.getDate()*(20-rank)/120)*120;return Math.round((Math.max(baseRefs,10)*120+dailyBonus)/120)*120;}
+
+let activeWinnersTab = 'today';
+let _notifPool = [];
+
+function switchWinnersTab(tab, pushHash=true) {
+  activeWinnersTab=tab;
+  ['today','top20'].forEach(t=>{document.getElementById('wtab-'+t)?.classList.toggle('active',t===tab);const el=document.getElementById('winners-'+t);if(el)el.style.display=t===tab?'block':'none';});
+  if(pushHash){const hash='#winners'+tab;if(window.location.hash!==hash)history.pushState(null,'',hash);}
+}
+
+function renderWinners() {
+  const badges=['🥇','🥈','🥉'];
+  const seed=getDailySeed();
+  const shuffF=seededShuffle(FIRST_NAMES,seed),shuffS=seededShuffle(SURNAMES,seed+7);
+  const todayNames=shuffF.map((fn,i)=>fn+' '+shuffS[i%shuffS.length]);
+  const todayData=todayNames.map((name,i)=>({name,pts:getTodayPoints(i)})).sort((a,b)=>b.pts-a.pts).slice(0,30);
+  _notifPool=todayData.map((u,i)=>({name:u.name,cls:['8','9','10','11','12'][i%5]}));
+
+  document.getElementById('winners-today').innerHTML=todayData.map((u,i)=>`
+    <div class="lb-row flex items-center gap-3 px-4 py-3.5 ${i<todayData.length-1?'border-b border-gray-50':''}">
+      <div class="w-7 text-center">${i<3?`<span class="text-base">${badges[i]}</span>`:`<span class="text-ink-muted text-sm font-semibold">${i+1}</span>`}</div>
+      <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center font-bold text-brand text-xs flex-shrink-0">${u.name.charAt(0)}</div>
+      <div class="flex-1 min-w-0"><p class="font-semibold text-brand text-sm truncate">${u.name}</p><p class="text-ink-muted text-xs">Active today</p></div>
+      <div class="text-right"><p class="font-bold text-brand text-sm">${u.pts.toLocaleString()}</p><p class="text-ink-muted text-xs">pts</p></div>
+    </div>`).join('');
+
+  document.getElementById('winners-top20').innerHTML=TOP20_NAMES.map((name,i)=>{
+    const pts=getTop20Points(i),refs=pts/120;
+    return `<div class="lb-row flex items-center gap-3 px-4 py-3.5 ${i<TOP20_NAMES.length-1?'border-b border-gray-50':''}">
+      <div class="w-7 text-center">${i<3?`<span class="text-base">${badges[i]}</span>`:`<span class="text-ink-muted text-sm font-semibold">${i+1}</span>`}</div>
+      <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center font-bold text-brand text-xs flex-shrink-0">${name.charAt(0)}</div>
+      <div class="flex-1 min-w-0"><p class="font-semibold text-brand text-sm truncate">${name}</p><p class="text-ink-muted text-xs">${refs} referrals</p></div>
+      <div class="text-right"><p class="font-bold text-brand text-sm">${pts.toLocaleString()}</p><p class="text-ink-muted text-xs">pts</p></div>
+    </div>`;
+  }).join('');
+}
+
+function refreshRankBadge() {
+  const rank = getOrInitRank();
+  const txt  = user ? `#${rank.toLocaleString()}` : '#—';
+  ['userRankDisplay','refRankDisplay','profileRankDisplay','headerRankText'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=txt;});
+  document.getElementById('headerRankChip')?.classList.toggle('hidden', !user);
+}
+
+/* ══════════════════════════════════════════════
+   LIVE NOTIFICATION SYSTEM
+   Show: 2–3s visible, Gap: 5–10s between notifications
+══════════════════════════════════════════════ */
+const NOTIF_ACTIONS=['just completed a referral','just solved a doubt','generated study notes','created a study routine','earned 120 points','moved up in the rankings','opened Practice Questions','accessed Important Questions','joined StudyAI','reached a new level','unlocked a reward','completed a mock test'];
+let _notifIndex = 0;
+
+function showLiveNotif() {
+  if (!_notifPool.length) return;
+  const item   = _notifPool[_notifIndex % _notifPool.length];
+  const action = NOTIF_ACTIONS[_notifIndex % NOTIF_ACTIONS.length];
+  _notifIndex++;
+  document.getElementById('notifAvatar').textContent = item.name.charAt(0).toUpperCase();
+  document.getElementById('notifText').innerHTML = `<strong>${item.name}</strong> from Class ${item.cls} ${action}`;
+  const el = document.getElementById('liveNotif');
+  el.classList.add('show');
+  playSoundNotif(); // sound on every notification
+  const showDur = Math.floor(Math.random()*1000)+2000; // 2–3s visible
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(()=>el.classList.remove('show'), showDur);
+}
+
+function startNotifLoop() {
+  if (!_notifPool.length) {
+    const seed=getDailySeed();
+    const f=seededShuffle(FIRST_NAMES,seed+13),s=seededShuffle(SURNAMES,seed+17);
+    _notifPool=f.map((fn,i)=>({name:fn+' '+s[i%s.length],cls:['8','9','10','11','12'][i%5]}));
+  }
+  // First notification after 4s, then every 5–10s gap
+  setTimeout(function loop(){
+    showLiveNotif();
+    const gap = Math.floor(Math.random()*5000)+5000; // 5–10s gap
+    setTimeout(loop, gap);
+  }, 4000);
+}
+
+/* ══════════════════════════════════════════════
+   REFERRAL UI
+   refCount is loaded from localStorage only.
+   Never auto-incremented by tab switch or time.
+══════════════════════════════════════════════ */
+function initReferral() {
+  if (!user) return;
+  const digits = user.phone.replace(/\D/g,'');
+  const base   = window.location.origin + window.location.pathname;
+  const el     = document.getElementById('refLink');
+  if (el) el.textContent = `${base}?ref=${digits}`;
+}
+
+function refreshReferralUI() {
+  // Load from localStorage — do NOT compute from time/date
+  refCount = parseInt(localStorage.getItem('studyai_refCount') || '0');
+  const lv  = getLevelData(refCount);
+  const pts = refCount * POINTS_PER_REFERRAL;
+
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set('refCountDisplay',  refCount);
+  set('refPointsDisplay', pts);
+  set('refLevelDisplay',  lv.level);
+  set('refLevelLabel',    `Level ${lv.level}`);
+  set('refCompletedText', `${refCount} friend${refCount!==1?'s':''} joined · ${pts} pts earned`);
+
+  const hint = document.getElementById('refLevelHint');
+  if (hint) hint.textContent = lv.needed === REFS_PER_LEVEL
+    ? `Complete first ${REFS_PER_LEVEL} referrals to reach Level 1`
+    : `${lv.needed} more referral${lv.needed!==1?'s':''} to reach Level ${lv.level+1}`;
+
+  const bar = document.getElementById('refLevelBar');
+  if (bar) bar.style.width = lv.pct + '%';
+
+  refreshRankBadge();
+}
+
+function shareRefNative() {
+  const link = document.getElementById('refLink')?.textContent || '';
+  if (navigator.share) {
+    navigator.share({ title:'Join StudyAI', text:'AI-powered study tools for students!', url:link }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(link).then(()=>showToast('Link copied!')).catch(()=>showToast('Copy the link manually'));
+  }
+}
+function shareRef() {
+  const link = document.getElementById('refLink')?.textContent || '';
+  window.open(`https://wa.me/917896011657?text=${encodeURIComponent('Join StudyAI!\nUse my link: '+link)}`, '_blank');
+}
+function openAffiliate() { window.open(AFFILIATE_URL, '_blank'); }
+
+/* ══════════════════════════════════════════════
+   PROFILE POPUP
+   On logout: clear localStorage → show login popup
+══════════════════════════════════════════════ */
+function openProfile() {
+  if (!user) { openLogin(); return; }
+  document.getElementById('pv_name').textContent   = user.name   || '—';
+  document.getElementById('pv_phone').textContent  = user.phone  || '—';
+  document.getElementById('pv_cls').textContent    = `Class ${user.cls||'—'}`;
+  document.getElementById('pv_board').textContent  = user.board  || '—';
+  document.getElementById('pv_stream').textContent = user.stream === 'none' ? 'Not applicable' : (user.stream||'—');
+  const saved = localStorage.getItem('studyai_avatar');
+  const inner = document.getElementById('profileAvatar');
+  inner.innerHTML = saved
+    ? `<img src="${saved}" alt="avatar"/>`
+    : `<span style="font-size:28px;font-weight:700;color:#3541e0">${user.name.charAt(0).toUpperCase()}</span>`;
+  updateProfilePremiumStatus();
+  refreshRankBadge();
+  showProfileView();
+  document.getElementById('profileModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeProfile() { document.getElementById('profileModal').classList.remove('show'); document.body.style.overflow = ''; }
+function showProfileView() { document.getElementById('profileViewMode').classList.remove('hidden'); document.getElementById('profileEditMode').classList.add('hidden'); }
+function showProfileEdit() {
+  document.getElementById('pe_name').value   = user.name   || '';
+  document.getElementById('pe_cls').value    = user.cls    || '11';
+  document.getElementById('pe_stream').value = (user.stream && user.stream!=='none') ? user.stream : 'PCM';
+  const raw = ['CBSE','ICSE','State Board','NIOS','Other'];
+  if (raw.includes(user.board)) { document.getElementById('pe_board').value=user.board; document.getElementById('pe_boardCustomWrap').classList.add('hidden'); }
+  else { document.getElementById('pe_board').value='Other'; document.getElementById('pe_boardCustomWrap').classList.remove('hidden'); document.getElementById('pe_boardCustom').value=user.board||''; }
+  document.getElementById('profileViewMode').classList.add('hidden');
+  document.getElementById('profileEditMode').classList.remove('hidden');
+}
+function hideProfileEdit() { showProfileView(); }
+function handleProfileBoardChange() { document.getElementById('pe_boardCustomWrap').classList.toggle('hidden', document.getElementById('pe_board').value!=='Other'); }
+function saveProfileEdit() {
+  const sel=document.getElementById('pe_board').value, custom=document.getElementById('pe_boardCustom')?.value?.trim();
+  user.name   = document.getElementById('pe_name').value.trim() || user.name;
+  user.cls    = document.getElementById('pe_cls').value;
+  user.stream = document.getElementById('pe_stream').value;
+  user.board  = sel==='Other' ? (custom||'Other') : sel;
+  localStorage.setItem('studyai_user', JSON.stringify(user));
+  updateHeaderUI();
+  document.getElementById('pv_name').textContent   = user.name;
+  document.getElementById('pv_cls').textContent    = `Class ${user.cls}`;
+  document.getElementById('pv_board').textContent  = user.board;
+  document.getElementById('pv_stream').textContent = user.stream==='none' ? 'Not applicable' : user.stream;
+  showProfileView(); showToast('Profile updated!');
+}
+function triggerAvatarUpload() { document.getElementById('avatarFileInput').click(); }
+function handleAvatarUpload(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    localStorage.setItem('studyai_avatar', data);
+    document.getElementById('profileAvatar').innerHTML = `<img src="${data}" alt="avatar"/>`;
+    document.getElementById('avatarBtn').innerHTML = `<img src="${data}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+    showToast('Photo updated!');
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * logoutUser — clears all localStorage, shows login popup immediately
+ */
+function logoutUser() {
+  closeProfile();
+  // Clear user data
+  localStorage.removeItem('studyai_user');
+  localStorage.removeItem('studyai_avatar');
+  // Keep premium/referral data intact (user may log back in)
+  user = null;
+  updateHeaderUI();
+  renderTools();
+  showToast('Logged out successfully');
+  // Show login popup after a short delay
+  setTimeout(openLogin, 400);
+}
+
+/* ══════════════════════════════════════════════
+   HEADER UI
+══════════════════════════════════════════════ */
+function updateHeaderUI() {
+  if (user) {
+    const av = localStorage.getItem('studyai_avatar');
+    document.getElementById('welcomeText').textContent = `Hi, Welcome ${user.name.split(' ')[0]}`;
+    document.getElementById('avatarBtn').innerHTML = av
+      ? `<img src="${av}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+      : `<span style="font-weight:700;font-size:14px;color:#1a1f36">${user.name.charAt(0)}</span>`;
+    document.getElementById('headerRankChip').classList.remove('hidden');
+  } else {
+    document.getElementById('welcomeText').textContent = 'Smart Tools for Every Student';
+    document.getElementById('avatarBtn').innerHTML     = '<i class="fa-solid fa-user text-brand-900"></i>';
+    document.getElementById('headerRankChip').classList.add('hidden');
+  }
+  updatePlanBadge();
+}
+document.getElementById('avatarBtn').onclick = () => user ? openProfile() : openLogin();
+
+/* ══════════════════════════════════════════════
+   LOGIN FLOW
+   Stream step ONLY for Class 11 & 12
+   Phone field: auto-filled + readonly if already in localStorage
+══════════════════════════════════════════════ */
+let loginStep = 0, loginData = {};
+const BASE_STEPS = [
+  { key:'name',  question:"Hey there! What's your name?",  type:'name'   },
+  { key:'phone', question:'Enter your WhatsApp number.',    type:'phone'  },
+  { key:'cls',   question:'Which class are you in?',        type:'select', options:['8','9','10','11','12','12+'] },
+  { key:'board', question:'Select your education board.',   type:'board'  }
+];
+const STREAM_STEP = { key:'stream', question:'What is your stream?', type:'select', options:['PCM','PCB','Commerce','Arts','General'] };
+function buildLoginSteps(cls) { const s=[...BASE_STEPS]; if(cls==='11'||cls==='12') s.splice(3,0,STREAM_STEP); return s; }
+let STEPS = buildLoginSteps('');
+
+function openLogin() {
+  loginStep=0; loginData={}; STEPS=buildLoginSteps('');
+  document.getElementById('chatMessages').innerHTML = '';
+  showLoginStep();
+  document.getElementById('loginOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeLogin() { document.getElementById('loginOverlay').classList.remove('show'); document.body.style.overflow = ''; }
+
+function addBubble(text) {
+  const el = document.createElement('div');
+  el.className='chat-bubble text-brand text-sm'; el.textContent=text;
+  document.getElementById('chatMessages').appendChild(el);
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function showLoginStep() {
+  const step = STEPS[loginStep];
+  setTimeout(()=>{ addBubble(step.question); renderLoginInput(step); }, loginStep===0?100:300);
+}
+
+function renderLoginInput(step) {
+  const area = document.getElementById('loginInputArea');
+  if (step.type === 'select') {
+    area.innerHTML = `<div class="flex flex-wrap gap-2 mb-4">${step.options.map(o=>`<button class="pill-btn" onclick="playSoundClick();selectOption('${o}')">${o}</button>`).join('')}</div>`;
+  } else if (step.type === 'phone') {
+    // Phone: auto-fill from localStorage if available + make readonly
+    const savedPhone = getStoredPhoneDigits();
+    const roClass    = savedPhone ? 'field-readonly' : '';
+    const roAttr     = savedPhone ? 'readonly' : '';
+    area.innerHTML = `
+      <div class="phone-prefix-row mb-4">
+        <span class="phone-prefix">+91</span>
+        <input id="loginField" type="tel" class="field flex-1 ${roClass}" placeholder="10-digit number"
+          maxlength="10" value="${savedPhone}" ${roAttr}/>
+      </div>
+      ${savedPhone ? `<p class="text-xs text-ink-muted mb-3">Phone number loaded from your account</p>` : ''}
+      <button class="btn-primary" onclick="playSoundClick();submitLoginField()">Continue</button>`;
+    if (!savedPhone) setTimeout(()=>document.getElementById('loginField')?.focus(), 100);
+  } else if (step.type === 'board') {
+    area.innerHTML = `
+      <div class="flex flex-col gap-3 mb-4">
+        <select id="loginBoardSelect" class="field" onchange="handleLoginBoardChange()">
+          <option>CBSE</option><option>ICSE</option><option>State Board</option><option>NIOS</option><option>Other</option>
+        </select>
+        <div id="loginBoardCustomWrap" class="hidden">
+          <input id="loginBoardCustom" type="text" class="field" placeholder="Enter your board name"/>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="playSoundClick();submitBoardStep()">Continue</button>`;
+  } else {
+    area.innerHTML = `
+      <input id="loginField" type="text" class="field mb-4" placeholder="Your full name..."/>
+      <button class="btn-primary" onclick="playSoundClick();submitLoginField()">Continue</button>`;
+    setTimeout(()=>document.getElementById('loginField')?.focus(), 100);
+  }
+}
+
+function handleLoginBoardChange() {
+  document.getElementById('loginBoardCustomWrap')?.classList.toggle('hidden', document.getElementById('loginBoardSelect')?.value!=='Other');
+}
+function submitBoardStep() {
+  const sel=document.getElementById('loginBoardSelect').value, custom=document.getElementById('loginBoardCustom')?.value?.trim();
+  loginData.board = sel==='Other' ? (custom||'Other') : sel;
+  advanceLogin(loginData.board);
+}
+function selectOption(val) {
+  loginData[STEPS[loginStep].key] = val;
+  document.querySelectorAll('#loginInputArea .pill-btn').forEach(b=>b.classList.toggle('selected', b.textContent===val));
+  if (STEPS[loginStep].key==='cls') STEPS = buildLoginSteps(val);
+  setTimeout(()=>advanceLogin(val), 200);
+}
+function submitLoginField() {
+  const step = STEPS[loginStep];
+  const val  = document.getElementById('loginField')?.value?.trim();
+  if (!val) { document.getElementById('loginField').classList.add('border-red-400'); return; }
+  if (step.type==='phone' && !/^\d{10}$/.test(val)) {
+    const f = document.getElementById('loginField');
+    f.classList.add('border-red-400'); f.placeholder='Enter valid 10-digit number'; return;
+  }
+  loginData[step.key] = step.type==='phone' ? '+91'+val : val;
+  advanceLogin(loginData[step.key]);
+}
+function advanceLogin(displayVal) {
+  const reply = document.createElement('div');
+  reply.className='chat-bubble self-end !bg-brand-100 !text-brand text-sm ml-auto';
+  reply.style.borderRadius='16px 16px 4px 16px'; reply.textContent=displayVal;
+  document.getElementById('chatMessages').appendChild(reply);
+  reply.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('loginInputArea').innerHTML=''; loginStep++;
+  if (loginStep < STEPS.length) { showLoginStep(); }
+  else {
+    setTimeout(()=>{
+      addBubble(`Welcome aboard, ${loginData.name}! Let's start studying.`);
+      document.getElementById('loginInputArea').innerHTML = `
+        <button class="btn-primary mt-2" onclick="playSoundClick();finaliseLogin()">
+          <i class="fa-solid fa-rocket mr-2"></i>Start Studying
+        </button>`;
+    }, 400);
+  }
+}
+function finaliseLogin() {
+  user = {
+    name:      loginData.name,
+    phone:     loginData.phone,
+    cls:       loginData.cls,
+    stream:    loginData.stream  || 'none',
+    board:     loginData.board   || 'CBSE',
+    referredBy:incomingRef       || 'none'
+  };
+  localStorage.setItem('studyai_user', JSON.stringify(user));
+  if (incomingRef && !localStorage.getItem('studyai_refCounted')) {
+    // Note: referral count is ONLY incremented via gift code validation
+    localStorage.setItem('studyai_refCounted','1');
+  }
+  sendToSheets(user);
+  closeLogin();
+  initApp();
+}
+
+/* Toast */
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+function initApp() {
+  isPremiumActive(); // check + clear expired premium
+  updateHeaderUI();
+  updatePlanBadge();
+  renderTools();
+  renderWinners();
+  initReferral();
+  refreshReferralUI();
+  refreshRankBadge();
+  startNotifLoop();
+  routeFromHash();
+
+  // Detect ?pre=yes URL — open premium access popup.
+  // No longer requires "period" in URL — plan is auto-detected from key.
+  if (_preParam === 'yes') {
+    setTimeout(openPremiumModal, 800);
+  } else if (!user) {
+    setTimeout(openLogin, 700);
+  }
+}
+
+initApp();
+</script>
+
+<!--
+═══════════════════════════════════════════════════════════════════
+  GOOGLE APPS SCRIPT  — paste in script.google.com → deploy as Web App
+  Execute as: Me | Who has access: Anyone
+  Copy deployment URL → paste as SCRIPT_URL above
+═══════════════════════════════════════════════════════════════════
+
+const SHEET_NAME = "StudyAI Leads";
+
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      sheet.appendRow(["Timestamp","Name","Phone","Class","Stream","Board","Referral"]);
+    }
+    var data = JSON.parse(e.postData.contents);
+    sheet.appendRow([data.timestamp||new Date().toISOString(),data.name||"",data.phone||"",data.cls||"",data.stream||"none",data.board||"",data.referral||"none"]);
+    return ContentService.createTextOutput(JSON.stringify({status:"success"})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+function doGet(e){return ContentService.createTextOutput(JSON.stringify({status:"StudyAI Sheet API is live"})).setMimeType(ContentService.MimeType.JSON);}
+
+═══════════════════════════════════════════════════════════════════
+-->
+
+<footer class="ankur-credit-footer">Crafted by <strong><a href="https://wa.me/917896011657?text=Hi%20Ankur%21%20I%20saw%20your%20portfolio%20project%20demo%20and%20I%20want%20a%20premium%20website%20like%20this%20for%20my%20business." target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Ankur</a></strong> <span>· Premium Website Concept Demo</span></footer>
+
+</body>
+</html>
