@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Ankur Portfolio — Premium Local Business Website Demos</title>
+<!-- Website Title -->
+<title>Ankur — Web Developer & Designer | Premium Websites for Local Businesses</title>
+
+<!-- SEO Description -->
+<meta name="description" content="I create premium, fast and mobile-friendly websites for salons, local businesses, portfolios and landing pages with modern design, SEO basics and WhatsApp lead generation.">
+
+<meta name="keywords" content="Ankur Web Developer, Portfolio Website, Website Designer India, Salon Website, Local Business Website, Landing Page Designer, WhatsApp Lead Website">
+<meta name="author" content="Ankur">
+<meta name="robots" content="index, follow">
+
+<!-- Theme Colors -->
+<meta name="theme-color" content="#07070d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+
+<!-- Dark / Light Browser Icon -->
+<link rel="icon" type="image/png" href="https://i.ibb.co/MDj0k0ZQ/Chat-GPT-Image-May-19-2026-06-44-56-PM-2-removebg-preview.png" media="(prefers-color-scheme: dark)">
+
+<link rel="icon" type="image/png" href="https://i.ibb.co/MDcGc5VT/Chat-GPT-Image-May-19-2026-06-44-56-PM-1-removebg-preview.png" media="(prefers-color-scheme: light)">
+
+<!-- Apple Touch Icon: iPhone usually one icon only -->
+<link rel="apple-touch-icon" href="https://i.ibb.co/MDj0k0ZQ/Chat-GPT-Image-May-19-2026-06-44-56-PM-2-removebg-preview.png">
+
+<!-- WhatsApp / Facebook / LinkedIn Preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ankur — Web Developer & Designer">
+<meta property="og:description" content="Premium websites for salons, local businesses, portfolios and landing pages with clean design, SEO basics and WhatsApp lead generation.">
+
+<!-- OG image me ek hi image best rahega -->
+<meta property="og:image" content="https://i.ibb.co/MDj0k0ZQ/Chat-GPT-Image-May-19-2026-06-44-56-PM-2-removebg-preview.png">
+<meta property="og:image:alt" content="Ankur Web Developer Portfolio Logo">
+<meta property="og:site_name" content="Ankur Portfolio">
+
+<!-- Twitter / X Preview -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ankur — Web Developer & Designer">
+<meta name="twitter:description" content="Premium websites for salons, local businesses, portfolios and landing pages.">
+<meta name="twitter:image" content="https://i.ibb.co/MDj0k0ZQ/Chat-GPT-Image-May-19-2026-06-44-56-PM-2-removebg-preview.png">
+
+
+
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -777,11 +817,11 @@ footer {
 .avis-photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: top center;
-  border-radius: inherit; opacity: .03;
+  border-radius: inherit; opacity: .001;
   transition: opacity 1s;
 }
-.avis:hover .avis-photo { opacity: .7; }
-[data-theme="light"] .avis-photo { opacity: .42; }
+.avis:hover .avis-photo { opacity: 1; }
+[data-theme="light"] .avis-photo { opacity: .34; }
 
 /* ══════════════════════════════════════════════
    IMAGE LOGO in nav / footer / preloader
@@ -1812,7 +1852,7 @@ footer {
   <div class="ag mx">
     <div class="avis rv-l">
       <!-- Professional photo — replace src when ready -->
-      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80"
+      <img src="https://i.ibb.co/FLqgW3MW/file-00000000cf8071fa9f6e5539676cbb34.png"
            alt="Ankur — Web Developer & Digital Designer"
            class="avis-photo"
            onerror="this.style.display='none'"/>
@@ -2777,16 +2817,18 @@ setInterval(renderSlots, 60 * 1000);
   const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ size: 0.018, vertexColors: true, transparent: true, opacity: 0.62, sizeAttenuation: true }));
   globe.add(dust);
 
-  const SKILLS = [
-    { name: 'HTML',       col: 0xe8826a },
-    { name: 'CSS',        col: 0x4fc3f7 },
-    { name: 'JavaScript', col: 0xf0d060 },
-    { name: 'React',      col: 0x61dafb },
-    { name: 'GSAP',       col: 0x88ce02 },
-    { name: 'Tailwind',   col: 0x38bdf8 },
-    { name: 'SEO',        col: 0xc9a84c },
-    { name: 'WhatsApp API', col: 0x25d366 }
-  ];
+const SKILLS = [
+  { name: 'HTML',      col: 0xe8826a },
+  { name: 'CSS',       col: 0x4fc3f7 },
+  { name: 'JS',         col: 0xf0d060 },
+  { name: 'UI',         col: 0xa78bfa },
+  { name: 'UX',         col: 0xc084fc },
+  { name: 'RWD',        col: 0x38bdf8 },
+  { name: 'SEO',        col: 0xc9a84c },
+  { name: 'Forms',      col: 0x22c55e },
+  { name: 'Animation',  col: 0xf472b6 },
+  { name: 'WhatsApp',   col: 0x25d366 }
+];
 
   function makeLabel(text, color) {
     const c = document.createElement('canvas');
